@@ -309,43 +309,79 @@ with tab2:
                 st.success("Equations copied to clipboard!")
                 
 with tab3:
-    st.subheader("📸 Camera Capture")
-    camera_btn = st.button(
-        "Toggle Camera",
-        on_click=toggle_camera,
-        help="Turn camera on/off",
-        key="scan_camera_toggle"
+    st.header("📸 Document Scanner")
+    st.markdown("""
+    Capture an image using your camera to scan and extract text.
+    """)
+
+    # Camera input for capturing an image
+    camera_image = st.camera_input(
+        "Take a picture to scan",
+        key="scanner_camera",
+        help="Capture an image for text extraction"
     )
 
-    if st.session_state.camera_on:
-        video_capture = cv2.VideoCapture(0)
-        frame_placeholder = st.empty()
-        capture_btn = st.button("Capture Image", key="scan_capture_btn")
+    if camera_image is not None:
+        # Display the captured image
+        st.image(camera_image, caption="Captured Image", use_container_width=True)
 
-        try:
-            ret, frame = video_capture.read()
-            if ret:
-                # Convert BGR to RGB
-                rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                frame_placeholder.image(rgb_frame, channels="RGB")
+        # Process the captured image
+        with st.spinner("Scanning and extracting text..."):
+            try:
+                # Convert the camera input (BytesIO) to bytes
+                file_bytes = camera_image.getvalue()
 
-                if capture_btn:
-                    # Convert to PIL Image
-                    pil_image = Image.fromarray(rgb_frame)
-                    st.session_state.uploaded_image = pil_image
-                    buf = io.BytesIO()
-                    pil_image.save(buf, format="PNG")
-                    result = process_uploaded_file(
-                        buf.getvalue(),
-                        "camera_capture.png"
+                # Process the uploaded file using your utility function
+                result = process_uploaded_file(file_bytes, "camera_capture.png")
+
+                # Store the extracted text and equations in session state
+                st.session_state.extracted_text = result['text']
+                st.session_state.extracted_equations = result['equations']
+
+                # Display results
+                st.subheader("📄 Extracted Content")
+                st.markdown("### Text Content")
+                st.markdown(
+                    f"""
+                    <div style="
+                        border: 1px solid #ccc;
+                        border-radius: 5px;
+                        padding: 10px;
+                        background-color: white;
+                        height: 300px;
+                        overflow-y: auto;
+                        font-family: monospace;
+                        white-space: pre-wrap;
+                        line-height: 1.4;
+                    ">{st.session_state.extracted_text}</div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+                # Display equations if detected
+                if st.session_state.extracted_equations and st.session_state.extracted_equations != "No equations detected":
+                    st.markdown("### Detected Equations")
+                    st.latex(st.session_state.extracted_equations)
+                    st.markdown(
+                        f"""
+                        <div style="
+                            border: 1px solid #ccc;
+                            border-radius: 5px;
+                            padding: 10px;
+                            background-color: white;
+                            max-height: 200px;
+                            overflow-y: auto;
+                            font-family: monospace;
+                            white-space: pre-wrap;
+                            line-height: 1.4;
+                        ">{st.session_state.extracted_equations}</div>
+                        """,
+                        unsafe_allow_html=True
                     )
-                    st.session_state.extracted_text = result['text']
-                    st.session_state.extracted_equations = result['equations']
-                    st.session_state.camera_on = False
-        except Exception as e:
-            st.error(f"Camera error: {str(e)}")
-        finally:
-            video_capture.release()
+
+                st.success("Text extraction completed!")
+            except Exception as e:
+                st.error(f"Error during scanning or text extraction: {str(e)}")
 
 # Footer
 st.markdown("---")
