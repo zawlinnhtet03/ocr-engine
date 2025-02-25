@@ -332,7 +332,7 @@ with tab3:
                 file_bytes = camera_image.getvalue()
 
                 # Process the uploaded file using your utility function
-                result = process_uploaded_file(file_bytes, "camera_capture.png")
+                result = perform_ocr_recognition(file_bytes, "camera_capture.png")
 
                 # Store the extracted text and equations in session state
                 st.session_state.extracted_text = result['text']
