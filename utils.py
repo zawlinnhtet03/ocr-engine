@@ -130,7 +130,7 @@ def detect_equations_with_gemini(image):
         # Prompt for equation detection
         prompt = """
         Please analyze this image and extract any mathematical equations you find.
-        Return only the equations in LaTeX format, one per line.
+        Return only the equations in correct format.
         If no equations are found, return 'No equations detected'.
         """
 
