@@ -187,7 +187,7 @@ with tab2:
             if uploaded_file.type.startswith('image'):
                 try:
                     image = Image.open(io.BytesIO(file_bytes))
-                    st.image(image, caption="Uploaded Image", use_column_width=True)
+                    st.image(image, caption="Uploaded Image", use_container_width=True)
                     st.session_state.uploaded_image = image
                 except Exception as e:
                     st.error(f"Error displaying image: {str(e)}")
