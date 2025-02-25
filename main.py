@@ -334,7 +334,7 @@ with tab3:
 
         # Process button for clarity
         if st.button("Extract Text", key="extract_scanner_btn"):
-            with st.spinner("Extracting text with Gemini AI..."):
+            with st.spinner("Extracting text..."):
                 # Extract text using Gemini
                 extracted_text = extract_text_with_camera(image)
                 
