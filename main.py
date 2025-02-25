@@ -311,7 +311,7 @@ with tab2:
 with tab3:
     st.header("📸 Document Scanner")
     st.markdown("""
-    Capture a document using your camera to extract textt.  
+    Capture a document using your camera to extract text.  
     **Tip**: Use your device's back camera for better quality (switch cameras if needed).
     """)
 
@@ -330,7 +330,7 @@ with tab3:
         
         # Display the captured image in a clean layout
         st.subheader("Preview")
-        st.image(image, caption="Captured Document", use_column_width=True)
+        st.image(image, caption="Captured Document", use_container_width=True)
 
         # Process button for clarity
         if st.button("Extract Text", key="extract_scanner_btn"):
