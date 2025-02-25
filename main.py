@@ -311,7 +311,7 @@ with tab2:
 with tab3:
     st.header("📸 Document Scanner")
     st.markdown("""
-    Capture a document using your camera to extract text.  
+    Capture a document using your camera to extract textt.  
     **Tip**: Use your device's back camera for better quality (switch cameras if needed).
     """)
 
