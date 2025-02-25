@@ -7,9 +7,9 @@ from utils import (
     enhance_image_for_ocr,
     initialize_ocr_engine,
     perform_ocr_recognition,
-    
     process_uploaded_file,
     extract_relevant_sentences,
+    extract_text_with_camera,
     MAX_FILE_SIZE
 )
 
@@ -311,77 +311,60 @@ with tab2:
 with tab3:
     st.header("📸 Document Scanner")
     st.markdown("""
-    Capture an image using your camera to scan and extract text.
+    Capture a document using your camera to extract text.  
+    **Tip**: Use your device's back camera for better quality (switch cameras if needed).
     """)
 
-    # Camera input for capturing an image
-    camera_image = st.camera_input(
-        "Take a picture to scan",
-        key="scanner_camera",
-        help="Capture an image for text extraction"
-    )
+    # Camera input with improved layout
+    with st.container():
+        st.subheader("Capture Image")
+        camera_image = st.camera_input(
+            "Take a picture",
+            key="scanner_camera",
+            help="Point your camera at the document and capture. Use the back camera for best results."
+        )
 
     if camera_image is not None:
-        # Display the captured image
-        st.image(camera_image, caption="Captured Image", use_container_width=True)
+        # Convert BytesIO to PIL Image
+        image = Image.open(camera_image)
+        
+        # Display the captured image in a clean layout
+        st.subheader("Preview")
+        st.image(image, caption="Captured Document", use_column_width=True)
 
-        # Process the captured image
-        with st.spinner("Scanning and extracting text..."):
-            try:
-                # Convert the camera input (BytesIO) to bytes
-                file_bytes = camera_image.getvalue()
-
-                # Process the uploaded file using your utility function
-                result = perform_ocr_recognition(file_bytes, "camera_capture.png")
-
-                # Store the extracted text and equations in session state
-                st.session_state.extracted_text = result['text']
-                st.session_state.extracted_equations = result['equations']
+        # Process button for clarity
+        if st.button("Extract Text", key="extract_scanner_btn"):
+            with st.spinner("Extracting text with Gemini AI..."):
+                # Extract text using Gemini
+                extracted_text = extract_text_with_camera(image)
+                
+                # Store in session state
+                st.session_state.extracted_text = extracted_text
+                st.session_state.extracted_equations = ""  # Gemini might not separate equations; adjust if needed
 
                 # Display results
-                st.subheader("📄 Extracted Content")
-                st.markdown("### Text Content")
-                st.markdown(
-                    f"""
-                    <div style="
-                        border: 1px solid #ccc;
-                        border-radius: 5px;
-                        padding: 10px;
-                        background-color: white;
-                        height: 300px;
-                        overflow-y: auto;
-                        font-family: monospace;
-                        white-space: pre-wrap;
-                        line-height: 1.4;
-                    ">{st.session_state.extracted_text}</div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-                # Display equations if detected
-                if st.session_state.extracted_equations and st.session_state.extracted_equations != "No equations detected":
-                    st.markdown("### Detected Equations")
-                    st.latex(st.session_state.extracted_equations)
+                st.subheader("📄 Extracted Text")
+                if "Error" in extracted_text:
+                    st.error(extracted_text)
+                else:
+                    st.success("Text extraction completed!")
                     st.markdown(
                         f"""
                         <div style="
                             border: 1px solid #ccc;
                             border-radius: 5px;
-                            padding: 10px;
-                            background-color: white;
-                            max-height: 200px;
+                            padding: 15px;
+                            background-color: #f9f9f9;
+                            max-height: 400px;
                             overflow-y: auto;
                             font-family: monospace;
                             white-space: pre-wrap;
-                            line-height: 1.4;
-                        ">{st.session_state.extracted_equations}</div>
+                            line-height: 1.5;
+                            font-size: 16px;
+                        ">{extracted_text}</div>
                         """,
                         unsafe_allow_html=True
                     )
-
-                st.success("Text extraction completed!")
-            except Exception as e:
-                st.error(f"Error during scanning or text extraction: {str(e)}")
 
 # Footer
 st.markdown("---")
