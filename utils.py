@@ -269,3 +269,23 @@ def process_uploaded_file(file_bytes, filename):
         return {"text": str(ve), "equations": ""}
     except Exception as e:
         return {"text": f"Error processing {filename}: {str(e)}", "equations": ""}
+
+def extract_text_with_camera(image):
+    """Extract text from an image using Gemini API."""
+    try:
+        # Convert PIL Image to bytes
+        buf = io.BytesIO()
+        image.save(buf, format="PNG")
+        image_bytes = buf.getvalue()
+
+        # Prepare the image for Gemini (Gemini expects a file-like object or bytes)
+        model = genai.GenerativeModel('gemini-1.5-flash')  # Use the appropriate vision model
+        prompt = "Extract all text from this image."
+        
+        # Send image and prompt to Gemini
+        response = model.generate_content([prompt, {"mime_type": "image/png", "data": image_bytes}])
+        
+        # Return the extracted text
+        return response.text
+    except Exception as e:
+        return f"Error extracting text with Gemini: {str(e)}"
