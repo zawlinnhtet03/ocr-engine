@@ -102,8 +102,8 @@ def perform_ocr_recognition(image, engine):
   
   
     
-# Define maximum file size (10MB)
-MAX_FILE_SIZE = 30 * 1024 * 1024  # 10MB in bytes
+# Define maximum file size (5MB)
+MAX_FILE_SIZE = 5 * 1024 * 1024 
   
 def detect_equations_with_gemini(image):
     """Use Gemini to detect equations in the image"""
