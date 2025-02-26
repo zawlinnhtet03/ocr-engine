@@ -60,9 +60,9 @@ Extract text from images, handwritten notes, or scanned documents using our adva
 # Create tabs
 tab1, tab2, tab3 = st.tabs(["HTR", "OCR", "SCANNER"])
 
-# Tab 2: Advanced HWT
+
 with tab1:
-    st.header("Advanced Handwritten Text Recognition")
+    st.header("✍️ Advanced Handwritten Text Recognition")
     st.markdown("""
     Upload an image of handwritten text or use your camera to capture text.
     Our advanced algorithms will process and extract the text content.
@@ -146,9 +146,9 @@ with tab1:
                     except Exception as e:
                         st.error(f"An error occurred during text extraction: {str(e)}")
 
-# Tab 3: Scan
+
 with tab2:
-    st.header("Text Extractor & Document Scanner")
+    st.header("📄 Text Extractor & Document Scanner")
     st.markdown("""
     Extract text from various document formats or capture using your camera.
     Supported formats:
