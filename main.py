@@ -54,7 +54,7 @@ init_session_state()
 # Title and description
 st.title("🔍 Text Extraction & Document Scanner")
 st.markdown("""
-Extract text from images, handwritten notes.
+Extract text from images, handwritten notes or scanned documents using our advanced OCR and document scanning tools.
 """)
 
 # Create tabs
@@ -64,8 +64,7 @@ tab1, tab2, tab3 = st.tabs(["HTR", "OCR", "SCANNER"])
 with tab1:
     st.header("✍️ Advanced Handwritten Text Recognition")
     st.markdown("""
-    Upload an image of handwritten text or use your camera to capture text.
-    Our advanced algorithms will process and extract the text content.
+    Upload an image of handwritten text.
     """)
 
     # Input method selection
