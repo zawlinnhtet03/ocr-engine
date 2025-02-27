@@ -54,7 +54,7 @@ init_session_state()
 # Title and description
 st.title("🔍 Text Extraction & Document Scanner")
 st.markdown("""
-Extract text from images, handwritten notes, or scanned documents using our advanced OCR and document scanning tools.
+Extract text from images, handwritten notes.
 """)
 
 # Create tabs
@@ -150,7 +150,7 @@ with tab1:
 with tab2:
     st.header("📄 Text Extractor & Document Scanner")
     st.markdown("""
-    Extract text from various document formats or capture using your camera.
+    Extract text from various document formats.
     Supported formats:
     - 📸 Images (PNG, JPG)
     - 📄 PDF documents
