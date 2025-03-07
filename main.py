@@ -58,95 +58,9 @@ Extract text from images, handwritten notes or scanned documents using our advan
 """)
 
 # Create tabs
-tab1, tab2, tab3 = st.tabs(["HTR", "OCR", "SCANNER"])
-
+tab1, tab2, tab3 = st.tabs(["OCR", "HTR", "SCANNER"])
 
 with tab1:
-    st.header("✍️ Advanced Handwritten Text Recognition")
-    st.markdown("""
-    Upload an image of handwritten text.
-    """)
-
-    # Input method selection
-    # input_method = st.radio("Choose input method:", ["Upload Image", "Use Camera"], key="advanced_hwt_input")
-
-    st.subheader("📤 File Upload")
-    uploaded_file1 = st.file_uploader(
-        f"Choose a file (Max size: {MAX_FILE_SIZE/1024/1024:.1f}MB)",
-        type=['png', 'jpg', 'jpeg', 'pdf', 'docx'],
-        key="scan_upload1"
-    )
-    # Image input handling
-    if uploaded_file1 is not None:
-        # uploaded_file = st.file_uploader("Upload text image", type=["jpg", "jpeg", "png", 'pdf', 'docx'], key="advanced_hwt_upload")
-        # if uploaded_file is not None:
-            try:
-                st.session_state.image = Image.open(uploaded_file1)
-            except Exception as e:
-                st.error(f"Error opening image: {str(e)}")
-                
-    # else:  # Camera input
-    #     camera_input = st.camera_input("Take a picture", key="advanced_hwt_camera")
-    #     if camera_input is not None:
-    #         try:
-    #             st.session_state.image = Image.open(camera_input)
-    #         except Exception as e:
-    #             st.error(f"Error capturing image: {str(e)}")
-
-    # Process image and display results
-    if st.session_state.image is not None:
-        st.markdown("### Image Preview")
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.markdown("#### Original Image")
-            st.image(st.session_state.image, caption="Original Image", use_container_width=True)
-
-        process_image_clicked = st.button("Process Image", key="process_btn_advanced", help="Enhance the image for OCR")
-        extract_text_clicked = st.button("Extract Text", key="extract_btn_advanced", help="Perform OCR on the processed image")
-
-        if process_image_clicked:
-            with st.spinner("Enhancing image quality..."):
-                try:
-                    # Enhance image for OCR
-                    st.session_state.processed_image = enhance_image_for_ocr(st.session_state.image)
-
-                    if st.session_state.processed_image is not None:
-                        st.success("Image processing completed!")
-                    else:
-                        st.error("Image preprocessing failed. Please try with a clearer image.")
-
-                except Exception as e:
-                    st.error(f"An error occurred during processing: {str(e)}")
-
-        if st.session_state.processed_image is not None:
-            with col2:
-                st.markdown("#### Preprocessed Image")
-                st.image(st.session_state.processed_image, caption="Enhanced for OCR", use_container_width=True)
-
-            if extract_text_clicked:
-                with st.spinner("Performing text extraction..."):
-                    try:
-                        # Perform OCR
-                        extracted_text = perform_ocr_recognition(st.session_state.processed_image, ocr_engine)
-
-                        # Display results
-                        st.markdown("### Extracted Text")
-                        if "Error" in extracted_text:
-                            st.error(extracted_text)
-                        else:
-                            st.success("Text extraction completed!")
-                            st.markdown(f"""
-                            <div class="result-section">
-                                <p style='font-size: 18px;'>{extracted_text}</p>
-                            </div>
-                            """, unsafe_allow_html=True)
-
-                    except Exception as e:
-                        st.error(f"An error occurred during text extraction: {str(e)}")
-
-
-with tab2:
     st.header("📄 Text Extractor & Document Scanner")
     st.markdown("""
     Extract text from various document formats.
@@ -306,6 +220,90 @@ with tab2:
             if st.session_state.extracted_equations and st.button("📋 Copy Equations", key="scan_copy_equations_btn"):
                 st.code(st.session_state.extracted_equations)
                 st.success("Equations copied to clipboard!")
+
+with tab2:
+    st.header("✍️ Advanced Handwritten Text Recognition")
+    st.markdown("""
+    Upload an image of handwritten text.
+    """)
+
+    # Input method selection
+    # input_method = st.radio("Choose input method:", ["Upload Image", "Use Camera"], key="advanced_hwt_input")
+
+    st.subheader("📤 File Upload")
+    uploaded_file1 = st.file_uploader(
+        f"Choose a file (Max size: {MAX_FILE_SIZE/1024/1024:.1f}MB)",
+        type=['png', 'jpg', 'jpeg'],
+        key="scan_upload1"
+    )
+    # Image input handling
+    if uploaded_file1 is not None:
+        # uploaded_file = st.file_uploader("Upload text image", type=["jpg", "jpeg", "png", 'pdf', 'docx'], key="advanced_hwt_upload")
+        # if uploaded_file is not None:
+            try:
+                st.session_state.image = Image.open(uploaded_file1)
+            except Exception as e:
+                st.error(f"Error opening image: {str(e)}")
+                
+    # else:  # Camera input
+    #     camera_input = st.camera_input("Take a picture", key="advanced_hwt_camera")
+    #     if camera_input is not None:
+    #         try:
+    #             st.session_state.image = Image.open(camera_input)
+    #         except Exception as e:
+    #             st.error(f"Error capturing image: {str(e)}")
+
+    # Process image and display results
+    if st.session_state.image is not None:
+        st.markdown("### Image Preview")
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("#### Original Image")
+            st.image(st.session_state.image, caption="Original Image", use_container_width=True)
+
+        process_image_clicked = st.button("Process Image", key="process_btn_advanced", help="Enhance the image for OCR")
+        extract_text_clicked = st.button("Extract Text", key="extract_btn_advanced", help="Perform OCR on the processed image")
+
+        if process_image_clicked:
+            with st.spinner("Enhancing image quality..."):
+                try:
+                    # Enhance image for OCR
+                    st.session_state.processed_image = enhance_image_for_ocr(st.session_state.image)
+
+                    if st.session_state.processed_image is not None:
+                        st.success("Image processing completed!")
+                    else:
+                        st.error("Image preprocessing failed. Please try with a clearer image.")
+
+                except Exception as e:
+                    st.error(f"An error occurred during processing: {str(e)}")
+
+        if st.session_state.processed_image is not None:
+            with col2:
+                st.markdown("#### Preprocessed Image")
+                st.image(st.session_state.processed_image, caption="Enhanced for OCR", use_container_width=True)
+
+            if extract_text_clicked:
+                with st.spinner("Performing text extraction..."):
+                    try:
+                        # Perform OCR
+                        extracted_text = perform_ocr_recognition(st.session_state.processed_image, ocr_engine)
+
+                        # Display results
+                        st.markdown("### Extracted Text")
+                        if "Error" in extracted_text:
+                            st.error(extracted_text)
+                        else:
+                            st.success("Text extraction completed!")
+                            st.markdown(f"""
+                            <div class="result-section">
+                                <p style='font-size: 18px;'>{extracted_text}</p>
+                            </div>
+                            """, unsafe_allow_html=True)
+
+                    except Exception as e:
+                        st.error(f"An error occurred during text extraction: {str(e)}")
                 
 with tab3:
     st.header("📸 Document Scanner")

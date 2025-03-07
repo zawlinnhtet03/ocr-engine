@@ -12,7 +12,10 @@ from docx import Document
 import tempfile
 import os
 from base64 import b64encode
+from sklearn.decomposition import PCA
 
+# Define maximum file size (5MB)
+MAX_FILE_SIZE = 5 * 1024 * 1024 
 
 def enhance_image_for_ocr(image):
     """
@@ -23,6 +26,8 @@ def enhance_image_for_ocr(image):
         img_array = np.array(image)
 
         # Convert to grayscale if image is colored
+        # Image as Matrix
+        # Matrix  Transformation
         if len(img_array.shape) == 3:
             gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
         else:
@@ -35,7 +40,10 @@ def enhance_image_for_ocr(image):
         # Add bilateral filtering to reduce noise while preserving edges
         denoised = cv2.bilateralFilter(enhanced, 9, 75, 75)
 
-        # Sharpen the image
+        # Sharpen the image 
+        # Convolution with Kernels (cv2.filter2D)
+        # Fundamental Linear Transformation
+        # Image Processing
         kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
         sharpened = cv2.filter2D(denoised, -1, kernel)
 
@@ -43,6 +51,7 @@ def enhance_image_for_ocr(image):
         _, binary = cv2.threshold(sharpened, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
         # Remove small noise
+        # Morphological Operations
         kernel = np.ones((2,2), np.uint8)
         cleaned = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
 
@@ -99,16 +108,10 @@ def perform_ocr_recognition(image, engine):
             return "Error: OCR engine needs updating. Please check for software updates."
         return f"OCR processing error: {error_msg}"
   
-  
-  
-    
-# Define maximum file size (5MB)
-MAX_FILE_SIZE = 5 * 1024 * 1024 
-  
 def detect_equations_with_gemini(image):
     """Use Gemini to detect equations in the image"""
     if not initialize_ocr_engine():
-        return "Gemini API key not configured"
+        return "API key not configured"
 
     try:
         # Convert PIL Image to bytes
@@ -213,12 +216,12 @@ def extract_text_from_docx(docx_bytes):
             text_blocks.append(paragraph.text.strip())
     return {'text': '\n\n'.join(text_blocks), 'equations': ''}
 
-def extract_text_from_txt(txt_bytes):
-    """Extract text from TXT bytes"""
-    text = txt_bytes.decode("utf-8")
-    # Preserve line breaks and paragraphs
-    text_blocks = [block.strip() for block in text.split('\n\n')]
-    return {'text': '\n\n'.join(text_blocks), 'equations': ''}
+# def extract_text_from_txt(txt_bytes):
+#     """Extract text from TXT bytes"""
+#     text = txt_bytes.decode("utf-8")
+#     # Preserve line breaks and paragraphs
+#     text_blocks = [block.strip() for block in text.split('\n\n')]
+#     return {'text': '\n\n'.join(text_blocks), 'equations': ''}
 
 def extract_relevant_sentences(text, keywords):
     """Extract sentences containing keywords with context"""
@@ -260,8 +263,8 @@ def process_uploaded_file(file_bytes, filename):
             return extract_text_from_pdf(file_bytes)
         elif filename.endswith('.docx'):
             return extract_text_from_docx(file_bytes)
-        elif filename.endswith('.txt'):
-            return extract_text_from_txt(file_bytes)
+        # elif filename.endswith('.txt'):
+        #     return extract_text_from_txt(file_bytes)
         else:
             return {"text": "Unsupported file format", "equations": ""}
 
@@ -288,4 +291,4 @@ def extract_text_with_camera(image):
         # Return the extracted text
         return response.text
     except Exception as e:
-        return f"Error extracting text with Gemini: {str(e)}"
+        return f"Error extracting text: {str(e)}"
