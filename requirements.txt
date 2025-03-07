@@ -7,3 +7,4 @@ pytesseract
 PyMuPDF
 python-docx
 pandas
+scikit-learn
