@@ -27,11 +27,11 @@ def enhance_image_for_ocr(image):
 
         # Determine the number of channels
         if len(img_array.shape) == 2:  # Grayscale image (1 channel)
-            gray = img_array
+            gray = img_array  # No need to convert, already grayscale
         elif len(img_array.shape) == 3:  # RGB or RGBA image (3 or 4 channels)
             if img_array.shape[2] == 4:  # RGBA image
                 img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2RGB)  # Convert RGBA to RGB
-            gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
+            gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)  # Convert RGB to grayscale
         else:
             raise ValueError(f"Unsupported image format: {img_array.shape} channels")
 
