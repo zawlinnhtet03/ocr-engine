@@ -19,9 +19,9 @@ st.set_page_config(
     page_icon="🔍",
 )
 
-if st.button("Clear All", key="clear_all_btn"):
-    reset_session_state()
-    st.experimental_rerun()
+# if st.button("Clear All", key="clear_all_btn"):
+#     reset_session_state()
+#     st.experimental_rerun()
 
 # Load custom CSS
 with open("assets/styles.css") as f:
@@ -42,19 +42,19 @@ def init_session_state():
     st.session_state.setdefault('scanner_extracted_text', "")  # SCANNER extracted text
     st.session_state.setdefault('scanner_extracted_equations', "")  # SCANNER extracted equations
 
-def reset_session_state():
-    st.session_state.image = None
-    st.session_state.processed_image = None
-    st.session_state.htr_extracted_text = ""
-    st.session_state.htr_extracted_equations = ""
-    st.session_state.file_type = None
-    st.session_state.uploaded_image = None
-    st.session_state.ocr_extracted_text = ""
-    st.session_state.ocr_extracted_equations = ""
-    st.session_state.camera_active = True
-    st.session_state.captured_image = None
-    st.session_state.scanner_extracted_text = ""
-    st.session_state.scanner_extracted_equations = ""
+# def reset_session_state():
+#     st.session_state.image = None
+#     st.session_state.processed_image = None
+#     st.session_state.htr_extracted_text = ""
+#     st.session_state.htr_extracted_equations = ""
+#     st.session_state.file_type = None
+#     st.session_state.uploaded_image = None
+#     st.session_state.ocr_extracted_text = ""
+#     st.session_state.ocr_extracted_equations = ""
+#     st.session_state.camera_active = True
+#     st.session_state.captured_image = None
+#     st.session_state.scanner_extracted_text = ""
+#     st.session_state.scanner_extracted_equations = ""
 
 init_session_state()
 
