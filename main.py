@@ -395,6 +395,3 @@ st.markdown("""
     <p>Powered by Advanced Computer Vision & OCR Technology</p>
 </div>
 """, unsafe_allow_html=True)
-
-
-My goal is the input size before capturing photo the same size with the preview image since they are not the same , the input size is a little shorter than the preview
