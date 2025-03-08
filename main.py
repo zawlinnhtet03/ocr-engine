@@ -249,7 +249,7 @@ with tab2:
                         if ocr_engine is None:
                             st.error("OCR engine initialization failed. Please check your API key.")
                         else:
-                            extracted_text = perform_ocr_recognition(st.session_state.processed_image, ocr_engine)
+                            extracted_text = perform_ocr_recognition(st.session_state.image, ocr_engine)
                             st.session_state.htr_extracted_text = extracted_text
                             st.markdown("### Extracted Text")
                             if "Error" in extracted_text:
