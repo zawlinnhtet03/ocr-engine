@@ -292,7 +292,7 @@ def extract_text_with_camera(image):
 
         # Prepare the image for Gemini (Gemini expects a file-like object or bytes)
         model = genai.GenerativeModel('gemini-1.5-flash')  # Use the appropriate vision model
-        prompt = "Extract all text from this image."
+        prompt = "Extract all text from this image. Returned only the extracted text."
         
         # Send image and prompt to Gemini
         response = model.generate_content([prompt, {"mime_type": "image/png", "data": image_bytes}])
