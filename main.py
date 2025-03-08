@@ -296,10 +296,13 @@ with tab3:
                 .stCamera {
                     width: 100% !important;
                     height: auto !important;
+                    max-height: 80vh !important; /* Increased height to fill more of the screen */
                 }
                 video {
                     width: 100% !important;
                     height: auto !important;
+                    max-height: 80vh !important; /* Match camera height */
+                    object-fit: cover !important; /* Ensure the video fills the space */
                 }
                 .full-screen-content {
                     width: 100% !important;
@@ -322,16 +325,25 @@ with tab3:
                     margin: 10px 0;
                     max-height: 300px;
                 }
+                .camera-container {
+                    width: 100% !important;
+                    max-width: 100% !important;
+                    padding: 20px; /* Increased padding for a larger feel */
+                    margin: 0 auto;
+                    text-align: center;
+                }
             </style>
         """, unsafe_allow_html=True)
 
         if st.session_state.camera_active:
             st.subheader("Capture Image")
+            st.markdown("<div class='camera-container'>", unsafe_allow_html=True)  # New container for camera
             camera_image = st.camera_input(
                 "Take a picture",
                 key="scanner_camera",
                 help="Point your camera at the document and capture. Use the back camera for best results."
             )
+            st.markdown("</div>", unsafe_allow_html=True)  # Close camera container
             if camera_image is not None:
                 st.session_state.captured_image = Image.open(camera_image)
                 st.session_state.camera_active = False
