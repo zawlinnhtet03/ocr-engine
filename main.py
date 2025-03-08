@@ -294,7 +294,7 @@ with tab3:
         st.markdown("""
             <style>
                 .stCamera {
-                    width: 100% !important;
+                    width: auto !important;
                     height: auto !important;
                     max-height: 80vh !important; /* Increased height to fill more of the screen */
                 }
