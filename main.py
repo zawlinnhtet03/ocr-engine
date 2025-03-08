@@ -107,19 +107,26 @@ with tab1:
     if st.session_state.ocr_extracted_text or st.session_state.ocr_extracted_equations:
         st.subheader("📄 Extracted Content")
         st.markdown("### Text Content")
+        # st.markdown(
+        #     f"""
+        #     <div style="
+        #         border: 1px solid #ccc;
+        #         border-radius: 5px;
+        #         padding: 10px;
+        #         background-color: white;
+        #         height: 500px;
+        #         overflow-y: auto;
+        #         font-family: monospace;
+        #         white-space: pre-wrap;
+        #         line-height: 1.4;
+        #     ">{st.session_state.ocr_extracted_text}</div>
+        #     """,
+        #     unsafe_allow_html=True
+        # )
+
         st.markdown(
             f"""
-            <div style="
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                padding: 10px;
-                background-color: white;
-                height: 500px;
-                overflow-y: auto;
-                font-family: monospace;
-                white-space: pre-wrap;
-                line-height: 1.4;
-            ">{st.session_state.ocr_extracted_text}</div>
+               {st.session_state.ocr_extracted_text}
             """,
             unsafe_allow_html=True
         )
