@@ -107,26 +107,19 @@ with tab1:
     if st.session_state.ocr_extracted_text or st.session_state.ocr_extracted_equations:
         st.subheader("📄 Extracted Content")
         st.markdown("### Text Content")
-        # st.markdown(
-        #     f"""
-        #     <div style="
-        #         border: 1px solid #ccc;
-        #         border-radius: 5px;
-        #         padding: 10px;
-        #         background-color: white;
-        #         height: 500px;
-        #         overflow-y: auto;
-        #         font-family: monospace;
-        #         white-space: pre-wrap;
-        #         line-height: 1.4;
-        #     ">{st.session_state.ocr_extracted_text}</div>
-        #     """,
-        #     unsafe_allow_html=True
-        # )
-
         st.markdown(
             f"""
-              {st.session_state.ocr_extracted_text}
+            <div style="
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 10px;
+                background-color: white;
+                height: 500px;
+                overflow-y: auto;
+                font-family: monospace;
+                white-space: pre-wrap;
+                line-height: 1.4;
+            ">{st.session_state.ocr_extracted_text}</div>
             """,
             unsafe_allow_html=True
         )
@@ -149,7 +142,7 @@ with tab1:
                 ">{st.session_state.ocr_extracted_equations}</div>
                 """,
                 unsafe_allow_html=True
-            )
+        )
 
         if keywords:
             st.subheader("🎯 Matching Results")
@@ -180,6 +173,7 @@ with tab1:
                     </div>
                     """,
                     unsafe_allow_html=True
+                
                 )
 
 with tab2:
