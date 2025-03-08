@@ -293,24 +293,25 @@ with tab3:
     with st.container():
         st.markdown("""
             <style>
-                /* Force camera input to fill the container */
+                /* Force camera input to fill the container and match preview height */
                 .stCamera {
                     width: 100% !important;
                     max-width: 100% !important;
                     height: auto !important;
-                    min-height: 30vh !important; /* Minimum height to ensure visibility */
-                    max-height: 50vh !important; /* Cap height to avoid overflow */
+                    min-height: 70vh !important; /* Increased to match preview height */
+                    max-height: 80vh !important; /* Cap height to avoid overflow */
                     margin: 0 !important;
                     padding: 0 !important;
                     display: block !important;
+                    box-sizing: border-box !important;
                 }
                 video {
                     width: 100% !important;
                     max-width: 100% !important;
                     height: auto !important;
-                    min-height: 30vh !important; /* Match minimum height */
-                    max-height: 50vh !important; /* Match maximum height */
-                    object-fit: cover !important; /* Ensure the video fills the space */
+                    min-height: 70vh !important; /* Match minimum height */
+                    max-height: 80vh !important; /* Match maximum height */
+                    object-fit: contain !important; /* Preserve aspect ratio to avoid distortion */
                     border-radius: 5px; /* Match preview styling */
                 }
                 /* Ensure the full-screen content applies to both camera and preview */
@@ -321,12 +322,14 @@ with tab3:
                     margin: 0 !important;
                     text-align: center;
                     box-sizing: border-box !important;
+                    min-height: 70vh !important; /* Ensure the container height matches */
                 }
                 .st-emotion-cache-1j7x7c6 { /* Target Streamlit's internal camera wrapper */
                     width: 100% !important;
                     max-width: 100% !important;
                     margin: 0 !important;
                     padding: 0 !important;
+                    min-height: 70vh !important; /* Ensure wrapper height matches */
                 }
                 .result-box {
                     width: 100% !important;
