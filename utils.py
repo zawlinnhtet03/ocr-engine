@@ -25,43 +25,40 @@ def enhance_image_for_ocr(image):
         # Convert PIL Image to numpy array
         img_array = np.array(image)
 
-        # Convert to grayscale if image is colored
-        # Image as Matrix
-        # Matrix  Transformation
-        if len(img_array.shape) == 3:
+        # Determine the number of channels
+        if len(img_array.shape) == 2:  # Grayscale image (1 channel)
+            gray = img_array
+        elif len(img_array.shape) == 3:  # RGB or RGBA image (3 or 4 channels)
             gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
         else:
-            gray = img_array
-            
-        # Apply PCA for dimensionality reduction
+            raise ValueError(f"Unsupported image format: {img_array.shape} channels")
+
+        # Ensure the image data type is uint8
+        gray = np.clip(gray, 0, 255).astype(np.uint8)
+
+        # Apply PCA for dimensionality reduction (works with 2D grayscale)
         pca = PCA(n_components=0.95)  # Retain 95% of variance
         flat_gray = gray.flatten().reshape(1, -1)
         pca_result = pca.fit_transform(flat_gray)
         gray = pca.inverse_transform(pca_result).reshape(gray.shape)
-        
-        # Ensure the image data type is uint8
-        gray = np.clip(gray, 0, 255).astype(np.uint8)
+        gray = np.clip(gray, 0, 255).astype(np.uint8)  # Clip after PCA
 
         # Enhance contrast using CLAHE
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
         enhanced = clahe.apply(gray)
 
         # Add bilateral filtering to reduce noise while preserving edges
         denoised = cv2.bilateralFilter(enhanced, 9, 75, 75)
 
-        # Sharpen the image 
-        # Convolution with Kernels (cv2.filter2D)
-        # Fundamental Linear Transformation
-        # Image Processing
-        kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+        # Sharpen the image
+        kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
         sharpened = cv2.filter2D(denoised, -1, kernel)
 
         # Apply Otsu's thresholding
         _, binary = cv2.threshold(sharpened, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
         # Remove small noise
-        # Morphological Operations
-        kernel = np.ones((2,2), np.uint8)
+        kernel = np.ones((2, 2), np.uint8)
         cleaned = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel)
 
         # Convert back to PIL Image
