@@ -377,6 +377,6 @@ with tab3:
     st.markdown("---")
     st.markdown("""
     <div style='text-align: center'>
-        <p>Powered by Advanced Computer Vision & OCR Technology</p>
+        <p>Powered by Advanced Computer Vision & OCR Technology..</p>
     </div>
     """, unsafe_allow_html=True)
