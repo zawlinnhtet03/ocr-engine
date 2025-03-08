@@ -75,7 +75,7 @@ with tab1:
                 try:
                     image = Image.open(io.BytesIO(file_bytes))
                     st.image(image, caption="Uploaded Image", use_container_width=True)
-                    st.session_state.ocr_image = image  # Use ocr_image instead of uploaded_image
+                    st.session_state.ocr_image = image
                 except Exception as e:
                     st.error(f"Error displaying image: {str(e)}")
 
@@ -101,7 +101,7 @@ with tab1:
             st.session_state.ocr_extracted_text = ""
             st.session_state.ocr_extracted_equations = ""
             st.session_state.file_type = None
-            st.session_state.ocr_image = None  # Clear ocr_image
+            st.session_state.ocr_image = None
 
     if st.session_state.ocr_extracted_text or st.session_state.ocr_extracted_equations:
         st.subheader("📄 Extracted Content")
@@ -118,7 +118,7 @@ with tab1:
                 font-family: monospace;
                 white-space: pre-wrap;
                 line-height: 1.4;
-            ">{st.session_state.ocr_extracted_text}</div>
+            ">{st.session_state.ocr_extracted_text or 'No text detected'}</div>
             """,
             unsafe_allow_html=True
         )
@@ -173,7 +173,6 @@ with tab1:
                     """,
                     unsafe_allow_html=True
                 )
-
 with tab2:
     st.header("✍️ Advanced Handwritten Text Recognition")
     st.markdown("""
