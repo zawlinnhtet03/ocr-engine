@@ -44,6 +44,11 @@ def init_session_state():
     if 'uploaded_image' not in st.session_state:
         st.session_state.uploaded_image = None
 
+    if 'camera_active' not in st.session_state:
+        st.session_state.camera_active = True
+    if 'captured_image' not in st.session_state:
+        st.session_state.captured_image = None
+
 # Define the toggle_camera function
 def toggle_camera():
     """Toggle camera state"""
