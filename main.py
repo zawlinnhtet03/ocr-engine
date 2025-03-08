@@ -13,14 +13,10 @@ from utils import (
     MAX_FILE_SIZE
 )
 
-# Initialize OCR engine
-ocr_engine = initialize_ocr_engine()
-
 # Page configuration
 st.set_page_config(
     page_title="Text Extraction & Document Scanner",
     page_icon="🔍",
-    # layout="wide"
 )
 
 # Load custom CSS
@@ -29,30 +25,18 @@ with open("assets/styles.css") as f:
 
 # Initialize session state for storing images and results
 def init_session_state():
-    if 'image' not in st.session_state:
-        st.session_state.image = None
-    if 'processed_image' not in st.session_state:
-        st.session_state.processed_image = None
-    if 'camera_on' not in st.session_state:
-        st.session_state.camera_on = False
-    if 'extracted_text' not in st.session_state:
-        st.session_state.extracted_text = ""
-    if 'extracted_equations' not in st.session_state:
-        st.session_state.extracted_equations = ""
-    if 'file_type' not in st.session_state:
-        st.session_state.file_type = None
-    if 'uploaded_image' not in st.session_state:
-        st.session_state.uploaded_image = None
-
-    if 'camera_active' not in st.session_state:
-        st.session_state.camera_active = True
-    if 'captured_image' not in st.session_state:
-        st.session_state.captured_image = None
-
-# Define the toggle_camera function
-def toggle_camera():
-    """Toggle camera state"""
-    st.session_state.camera_on = not st.session_state.camera_on
+    st.session_state.setdefault('image', None)  # HTR original image
+    st.session_state.setdefault('processed_image', None)  # HTR processed image
+    st.session_state.setdefault('htr_extracted_text', "")  # HTR extracted text
+    st.session_state.setdefault('htr_extracted_equations', "")  # HTR extracted equations
+    st.session_state.setdefault('file_type', None)  # OCR file type
+    st.session_state.setdefault('uploaded_image', None)  # OCR uploaded image
+    st.session_state.setdefault('ocr_extracted_text', "")  # OCR extracted text
+    st.session_state.setdefault('ocr_extracted_equations', "")  # OCR extracted equations
+    st.session_state.setdefault('camera_active', True)  # SCANNER camera state
+    st.session_state.setdefault('captured_image', None)  # SCANNER captured image
+    st.session_state.setdefault('scanner_extracted_text', "")  # SCANNER extracted text
+    st.session_state.setdefault('scanner_extracted_equations', "")  # SCANNER extracted equations
 
 init_session_state()
 
@@ -75,7 +59,6 @@ with tab1:
     - 📎 Word documents (DOCX)
     """)
 
-    # Add a more prominent size limit warning
     st.warning(f"""
     📢 **File Size Limit: {MAX_FILE_SIZE/1024/1024:.1f}MB**
 
@@ -95,13 +78,12 @@ with tab1:
 
     if uploaded_file:
         st.session_state.file_type = uploaded_file.type
-        file_bytes = uploaded_file.getvalue()  # Read file once
-        file_size = len(file_bytes) / (1024 * 1024)  # Size in MB
+        file_bytes = uploaded_file.getvalue()
+        file_size = len(file_bytes) / (1024 * 1024)
 
-        if file_size > MAX_FILE_SIZE/(1024*1024):
+        if file_size > MAX_FILE_SIZE / (1024 * 1024):
             st.error(f"File size ({file_size:.1f}MB) exceeds the maximum limit of {MAX_FILE_SIZE/1024/1024:.1f}MB")
         else:
-            # Display image if it's an image file
             if uploaded_file.type.startswith('image'):
                 try:
                     image = Image.open(io.BytesIO(file_bytes))
@@ -112,10 +94,9 @@ with tab1:
 
             with st.spinner("Processing file..."):
                 result = process_uploaded_file(file_bytes, uploaded_file.name)
-                st.session_state.extracted_text = result['text']
-                st.session_state.extracted_equations = result['equations']
+                st.session_state.ocr_extracted_text = result['text']
+                st.session_state.ocr_extracted_equations = result['equations']
 
-    # Keyword search section
     st.subheader("🔍 Text Search")
     col3, col4 = st.columns([3, 1])
 
@@ -130,16 +111,13 @@ with tab1:
         st.markdown("<br>", unsafe_allow_html=True)
         clear_btn = st.button("Clear Results", key="scan_clear_btn")
         if clear_btn:
-            st.session_state.extracted_text = ""
-            st.session_state.extracted_equations = ""
+            st.session_state.ocr_extracted_text = ""
+            st.session_state.ocr_extracted_equations = ""
             st.session_state.file_type = None
             st.session_state.uploaded_image = None
 
-    # Results section
-    if st.session_state.extracted_text or st.session_state.extracted_equations:
+    if st.session_state.ocr_extracted_text or st.session_state.ocr_extracted_equations:
         st.subheader("📄 Extracted Content")
-
-        # Display extracted text with better visibility and scrolling
         st.markdown("### Text Content")
         st.markdown(
             f"""
@@ -153,15 +131,14 @@ with tab1:
                 font-family: monospace;
                 white-space: pre-wrap;
                 line-height: 1.4;
-            ">{st.session_state.extracted_text}</div>
+            ">{st.session_state.ocr_extracted_text}</div>
             """,
             unsafe_allow_html=True
         )
 
-        # Display equations if found
-        if st.session_state.extracted_equations and st.session_state.extracted_equations != "No equations detected":
+        if st.session_state.ocr_extracted_equations and st.session_state.ocr_extracted_equations != "No equations detected":
             st.markdown("### Detected Equations")
-            st.latex(st.session_state.extracted_equations)
+            st.latex(st.session_state.ocr_extracted_equations)
             st.markdown(
                 f"""
                 <div style="
@@ -174,56 +151,50 @@ with tab1:
                     font-family: monospace;
                     white-space: pre-wrap;
                     line-height: 1.4;
-                ">{st.session_state.extracted_equations}</div>
+                ">{st.session_state.ocr_extracted_equations}</div>
                 """,
                 unsafe_allow_html=True
             )
 
-        # Display keyword matches if any
         if keywords:
             st.subheader("🎯 Matching Results")
             keyword_list = [k.strip() for k in keywords.split(",") if k.strip()]
             matches = extract_relevant_sentences(
-                st.session_state.extracted_text,
+                st.session_state.ocr_extracted_text,
                 keyword_list
             )
-
-            matches_container = st.container()
-            with matches_container:
-                for match in matches:
-                    st.markdown(
-                        f"""
-                        <div style="
-                            margin: 10px 0;
-                            padding: 15px;
-                            background-color: #f8f9fa;
-                            border: 1px solid #dee2e6;
-                            border-radius: 5px;
-                        ">
-                            <div style="color: #6c757d; font-size: 0.9em; margin-bottom: 5px;">
-                                {match['context']}
-                            </div>
-                            <div style="margin: 10px 0;">
-                                {match['sentence']}
-                            </div>
-                            <div style="color: #28a745; font-size: 0.9em;">
-                                Keywords found: {', '.join(match['keywords'])}
-                            </div>
+            for match in matches:
+                st.markdown(
+                    f"""
+                    <div style="
+                        margin: 10px 0;
+                        padding: 15px;
+                        background-color: #f8f9fa;
+                        border: 1px solid #dee2e6;
+                        border-radius: 5px;
+                    ">
+                        <div style="color: #6c757d; font-size: 0.9em; margin-bottom: 5px;">
+                            {match['context']}
                         </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
+                        <div style="margin: 10px 0;">
+                            {match['sentence']}
+                        </div>
+                        <div style="color: #28a745; font-size: 0.9em;">
+                            Keywords found: {', '.join(match['keywords'])}
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
-        # Copy buttons
         col5, col6 = st.columns(2)
         with col5:
-            if st.button("📋 Copy Text", key="scan_copy_text_btn"):
-                st.code(st.session_state.extracted_text)
+            if st.button("📋 Copy Text", key="ocr_copy_text_btn"):
+                st.code(st.session_state.ocr_extracted_text)
                 st.success("Text copied to clipboard!")
-
         with col6:
-            if st.session_state.extracted_equations and st.button("📋 Copy Equations", key="scan_copy_equations_btn"):
-                st.code(st.session_state.extracted_equations)
+            if st.session_state.ocr_extracted_equations and st.button("📋 Copy Equations", key="ocr_copy_equations_btn"):
+                st.code(st.session_state.ocr_extracted_equations)
                 st.success("Equations copied to clipboard!")
 
 with tab2:
@@ -232,33 +203,19 @@ with tab2:
     Upload an image of handwritten text.
     """)
 
-    # Input method selection
-    # input_method = st.radio("Choose input method:", ["Upload Image", "Use Camera"], key="advanced_hwt_input")
-
     st.subheader("📤 File Upload")
     uploaded_file1 = st.file_uploader(
         f"Choose a file (Max size: {MAX_FILE_SIZE/1024/1024:.1f}MB)",
         type=['png', 'jpg', 'jpeg'],
         key="scan_upload1"
     )
-    # Image input handling
-    if uploaded_file1 is not None:
-        # uploaded_file = st.file_uploader("Upload text image", type=["jpg", "jpeg", "png", 'pdf', 'docx'], key="advanced_hwt_upload")
-        # if uploaded_file is not None:
-            try:
-                st.session_state.image = Image.open(uploaded_file1)
-            except Exception as e:
-                st.error(f"Error opening image: {str(e)}")
-                
-    # else:  # Camera input
-    #     camera_input = st.camera_input("Take a picture", key="advanced_hwt_camera")
-    #     if camera_input is not None:
-    #         try:
-    #             st.session_state.image = Image.open(camera_input)
-    #         except Exception as e:
-    #             st.error(f"Error capturing image: {str(e)}")
 
-    # Process image and display results
+    if uploaded_file1 is not None:
+        try:
+            st.session_state.image = Image.open(uploaded_file1)
+        except Exception as e:
+            st.error(f"Error opening image: {str(e)}")
+
     if st.session_state.image is not None:
         st.markdown("### Image Preview")
         col1, col2 = st.columns(2)
@@ -273,14 +230,11 @@ with tab2:
         if process_image_clicked:
             with st.spinner("Enhancing image quality..."):
                 try:
-                    # Enhance image for OCR
                     st.session_state.processed_image = enhance_image_for_ocr(st.session_state.image)
-
                     if st.session_state.processed_image is not None:
                         st.success("Image processing completed!")
                     else:
                         st.error("Image preprocessing failed. Please try with a clearer image.")
-
                 except Exception as e:
                     st.error(f"An error occurred during processing: {str(e)}")
 
@@ -292,24 +246,25 @@ with tab2:
             if extract_text_clicked:
                 with st.spinner("Performing text extraction..."):
                     try:
-                        # Perform OCR
-                        extracted_text = perform_ocr_recognition(st.session_state.processed_image, ocr_engine)
-
-                        # Display results
-                        st.markdown("### Extracted Text")
-                        if "Error" in extracted_text:
-                            st.error(extracted_text)
+                        ocr_engine = initialize_ocr_engine()  # Re-initialize for safety
+                        if ocr_engine is None:
+                            st.error("OCR engine initialization failed. Please check your API key.")
                         else:
-                            st.success("Text extraction completed!")
-                            st.markdown(f"""
-                            <div class="result-section">
-                                <p style='font-size: 18px;'>{extracted_text}</p>
-                            </div>
-                            """, unsafe_allow_html=True)
-
+                            extracted_text = perform_ocr_recognition(st.session_state.processed_image, ocr_engine)
+                            st.session_state.htr_extracted_text = extracted_text
+                            st.markdown("### Extracted Text")
+                            if "Error" in extracted_text:
+                                st.error(extracted_text)
+                            else:
+                                st.success("Text extraction completed!")
+                                st.markdown(f"""
+                                <div class="result-section">
+                                    <p style='font-size: 18px;'>{st.session_state.htr_extracted_text}</p>
+                                </div>
+                                """, unsafe_allow_html=True)
                     except Exception as e:
                         st.error(f"An error occurred during text extraction: {str(e)}")
-                
+
 with tab3:
     st.header("📸 Document Scanner")
     st.markdown("""
@@ -317,7 +272,6 @@ with tab3:
     **Tip**: Use your device's back camera for better quality (switch cameras if needed).
     """, unsafe_allow_html=True)
 
-    # Full-screen container for camera and preview
     with st.container():
         st.markdown("""
             <style>
@@ -348,11 +302,11 @@ with tab3:
                     line-height: 1.5;
                     font-size: 14px;
                     margin: 10px 0;
+                    max-height: 300px;
                 }
             </style>
         """, unsafe_allow_html=True)
 
-        # Camera input or preview based on state
         if st.session_state.camera_active:
             st.subheader("Capture Image")
             camera_image = st.camera_input(
@@ -362,7 +316,7 @@ with tab3:
             )
             if camera_image is not None:
                 st.session_state.captured_image = Image.open(camera_image)
-                st.session_state.camera_active = False  # Switch to preview mode
+                st.session_state.camera_active = False
 
         if st.session_state.captured_image is not None and not st.session_state.camera_active:
             st.subheader("Preview")
@@ -370,34 +324,33 @@ with tab3:
             st.image(st.session_state.captured_image, caption="Captured Document", use_container_width=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
-            # Extract text button
             if st.button("Extract Text", key="extract_scanner_btn", help="Extract text from the captured image", use_container_width=True):
                 with st.spinner("Extracting text..."):
-                    extracted_text = extract_text_with_camera(st.session_state.captured_image)
-                    st.session_state.extracted_text = extracted_text
-                    st.session_state.extracted_equations = ""  # Gemini might not separate equations
+                    try:
+                        extracted_text = extract_text_with_camera(st.session_state.captured_image)
+                        st.session_state.scanner_extracted_text = extracted_text
+                        st.session_state.scanner_extracted_equations = ""
+                    except Exception as e:
+                        st.error(f"Error extracting text: {str(e)}")
 
-            # Display extracted text
-            if st.session_state.extracted_text:
+            if st.session_state.scanner_extracted_text:
                 st.subheader("📄 Extracted Text")
-                st.markdown("<div class='result-box' style='max-height: 300px;'>", unsafe_allow_html=True)
-                if "Error" in st.session_state.extracted_text:
-                    st.error(st.session_state.extracted_text)
+                st.markdown("<div class='result-box'>", unsafe_allow_html=True)
+                if "Error" in st.session_state.scanner_extracted_text:
+                    st.error(st.session_state.scanner_extracted_text)
                 else:
                     st.success("Text extraction completed!")
-                    st.write(st.session_state.extracted_text)
+                    st.write(st.session_state.scanner_extracted_text)
                 st.markdown("</div>", unsafe_allow_html=True)
 
-            # Option to retake photo
             if st.button("Retake Photo", key="retake_btn", help="Capture a new image", use_container_width=True):
                 st.session_state.captured_image = None
-                st.session_state.extracted_text = ""
+                st.session_state.scanner_extracted_text = ""
                 st.session_state.camera_active = True
 
-    # Footer
     st.markdown("---")
     st.markdown("""
     <div style='text-align: center'>
-        <p>Powered by Advanced Computer Vision & OCR Technology,</p>
+        <p>Powered by Advanced Computer Vision & OCR Technology OK</p>
     </div>
     """, unsafe_allow_html=True)
