@@ -312,30 +312,42 @@ with tab3:
     **Tip**: Use your device's back camera for better quality (switch cameras if needed).
     """, unsafe_allow_html=True)
 
-    # Container for better mobile layout
+    # Container for full-screen camera input
     with st.container():
         st.subheader("Capture Image")
-        # Add padding and center the camera input
-        st.markdown("<div style='padding: 10px; text-align: center;'>", unsafe_allow_html=True)
+        # Full-width camera input with custom styling for mobile
+        st.markdown("""
+            <div style='padding: 10px; text-align: center; width: 100%;'>
+                <style>
+                    .stCamera {
+                        width: 100% !important;
+                        height: auto !important;
+                    }
+                    video {
+                        width: 100% !important;
+                        height: auto !important;
+                    }
+                </style>
+            </div>
+        """, unsafe_allow_html=True)
         camera_image = st.camera_input(
             "Take a picture",
             key="scanner_camera",
             help="Point your camera at the document and capture. Use the back camera for best results."
         )
-        st.markdown("</div>", unsafe_allow_html=True)
 
-        # Preview and action buttons in a responsive layout
+        # Preview and action after capture
         if camera_image is not None:
             # Convert BytesIO to PIL Image
             image = Image.open(camera_image)
 
-            # Display preview in a centered column
-            col1, col2 = st.columns([3, 1])  # 3 parts for preview, 1 for spacer
-            with col1:
-                st.subheader("Preview")
-                st.image(image, caption="Captured Document", use_container_width=True)
+            # Full-width preview
+            st.subheader("Preview")
+            st.markdown("<div style='padding: 10px; text-align: center;'>", unsafe_allow_html=True)
+            st.image(image, caption="Captured Document", use_container_width=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
-            # Action button in a separate column for mobile tapability
+            # Action button below preview
             with st.container():
                 st.markdown("<div style='padding: 15px; text-align: center;'>", unsafe_allow_html=True)
                 if st.button("Extract Text", key="extract_scanner_btn", help="Extract text from the captured image", use_container_width=True):
@@ -360,12 +372,12 @@ with tab3:
                                     border-radius: 5px;
                                     padding: 15px;
                                     background-color: #f9f9f9;
-                                    max-height: 300px; /* Reduced for mobile */
+                                    max-height: 300px;
                                     overflow-y: auto;
                                     font-family: monospace;
                                     white-space: pre-wrap;
                                     line-height: 1.5;
-                                    font-size: 14px; /* Smaller font for mobile */
+                                    font-size: 14px;
                                     margin: 10px 0;
                                 ">{extracted_text}</div>
                                 """,
@@ -377,6 +389,6 @@ with tab3:
     st.markdown("---")
     st.markdown("""
     <div style='text-align: center'>
-        <p>Powered by Advanced Computer Vision & OCR Technology..</p>
+        <p>Powered by Advanced Computer Vision & OCR Technology,,,</p>
     </div>
     """, unsafe_allow_html=True)
