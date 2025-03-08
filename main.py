@@ -21,14 +21,13 @@ st.set_page_config(
 # with open("assets/styles.css") as f:
 #     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# Initialize session state for storing images and results
 def init_session_state():
-    st.session_state.setdefault('image', None)  # HTR original image
+    st.session_state.setdefault('ocr_image', None)  # OCR original image
+    st.session_state.setdefault('htr_image', None)  # HTR original image
     st.session_state.setdefault('processed_image', None)  # HTR processed image
     st.session_state.setdefault('htr_extracted_text', "")  # HTR extracted text
     st.session_state.setdefault('htr_extracted_equations', "")  # HTR extracted equations
     st.session_state.setdefault('file_type', None)  # OCR file type
-    st.session_state.setdefault('uploaded_image', None)  # OCR uploaded image
     st.session_state.setdefault('ocr_extracted_text', "")  # OCR extracted text
     st.session_state.setdefault('ocr_extracted_equations', "")  # OCR extracted equations
     st.session_state.setdefault('camera_active', True)  # SCANNER camera state
@@ -76,7 +75,7 @@ with tab1:
                 try:
                     image = Image.open(io.BytesIO(file_bytes))
                     st.image(image, caption="Uploaded Image", use_container_width=True)
-                    st.session_state.uploaded_image = image
+                    st.session_state.ocr_image = image  # Use ocr_image instead of uploaded_image
                 except Exception as e:
                     st.error(f"Error displaying image: {str(e)}")
 
@@ -102,31 +101,24 @@ with tab1:
             st.session_state.ocr_extracted_text = ""
             st.session_state.ocr_extracted_equations = ""
             st.session_state.file_type = None
-            st.session_state.uploaded_image = None
+            st.session_state.ocr_image = None  # Clear ocr_image
 
     if st.session_state.ocr_extracted_text or st.session_state.ocr_extracted_equations:
         st.subheader("📄 Extracted Content")
         st.markdown("### Text Content")
-        # st.markdown(
-        #     f"""
-        #     <div style="
-        #         border: 1px solid #ccc;
-        #         border-radius: 5px;
-        #         padding: 10px;
-        #         background-color: white;
-        #         height: 500px;
-        #         overflow-y: auto;
-        #         font-family: monospace;
-        #         white-space: pre-wrap;
-        #         line-height: 1.4;
-        #     ">{st.session_state.ocr_extracted_text}</div>
-        #     """,
-        #     unsafe_allow_html=True
-        # )
-
         st.markdown(
             f"""
-               {st.session_state.ocr_extracted_text}
+            <div style="
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 10px;
+                background-color: white;
+                height: 500px;
+                overflow-y: auto;
+                font-family: monospace;
+                white-space: pre-wrap;
+                line-height: 1.4;
+            ">{st.session_state.ocr_extracted_text}</div>
             """,
             unsafe_allow_html=True
         )
@@ -149,7 +141,7 @@ with tab1:
                 ">{st.session_state.ocr_extracted_equations}</div>
                 """,
                 unsafe_allow_html=True
-        )
+            )
 
         if keywords:
             st.subheader("🎯 Matching Results")
@@ -180,7 +172,6 @@ with tab1:
                     </div>
                     """,
                     unsafe_allow_html=True
-                
                 )
 
 with tab2:
@@ -198,7 +189,8 @@ with tab2:
 
     if uploaded_file1 is not None:
         try:
-            st.session_state.image = Image.open(uploaded_file1)
+            st.session_state.htr_image = Image.open(uploaded_file1)
+            print(f"HTR: Loaded image with shape {np.array(st.session_state.htr_image).shape}")  # Debug print
         except Exception as e:
             st.error(f"Error opening image: {str(e)}")
 
@@ -210,18 +202,18 @@ with tab2:
         st.markdown("<br>", unsafe_allow_html=True)
         clear_btn_htr = st.button("Clear Results", key="htr_clear_btn")
         if clear_btn_htr:
-            st.session_state.image = None
+            st.session_state.htr_image = None
             st.session_state.processed_image = None
             st.session_state.htr_extracted_text = ""
             st.session_state.htr_extracted_equations = ""
 
-    if st.session_state.image is not None:
+    if st.session_state.htr_image is not None:
         st.markdown("### Image Preview")
         col1, col2 = st.columns(2)
 
         with col1:
             st.markdown("#### Original Image")
-            st.image(st.session_state.image, caption="Original Image", use_container_width=True)
+            st.image(st.session_state.htr_image, caption="Original Image", use_container_width=True)
 
         process_image_clicked = st.button("Process Image", key="process_btn_advanced", help="Enhance the image for OCR")
         extract_text_clicked = st.button("Extract Text", key="extract_btn_advanced", help="Perform OCR on the processed image")
@@ -229,7 +221,8 @@ with tab2:
         if process_image_clicked:
             with st.spinner("Enhancing image quality..."):
                 try:
-                    st.session_state.processed_image = enhance_image_for_ocr(st.session_state.image)
+                    print(f"HTR: Enhancing image with shape {np.array(st.session_state.htr_image).shape}")  # Debug print
+                    st.session_state.processed_image = enhance_image_for_ocr(st.session_state.htr_image)
                     if st.session_state.processed_image is not None:
                         st.success("Image processing completed!")
                     else:
@@ -249,18 +242,33 @@ with tab2:
                         if ocr_engine is None:
                             st.error("OCR engine initialization failed. Please check your API key.")
                         else:
-                            extracted_text = perform_ocr_recognition(st.session_state.image, ocr_engine)
+                            extracted_text = perform_ocr_recognition(st.session_state.processed_image, ocr_engine)
                             st.session_state.htr_extracted_text = extracted_text
                             st.markdown("### Extracted Text")
                             if "Error" in extracted_text:
                                 st.error(extracted_text)
                             else:
                                 st.success("Text extraction completed!")
-                                st.markdown(f"""
-                                <div class="result-section">
-                                    <p style='font-size: 18px;'>{st.session_state.htr_extracted_text}</p>
-                                </div>
-                                """, unsafe_allow_html=True)
+                                st.markdown(
+                                    f"""
+                                    <div style="
+                                        border: 1px solid #ccc;
+                                        border-radius: 5px;
+                                        padding: 15px;
+                                        background-color: #f9f9f9;
+                                        max-height: 300px;
+                                        overflow-y: auto;
+                                        font-family: monospace;
+                                        white-space: pre-wrap;
+                                        line-height: 1.5;
+                                        font-size: 18px;
+                                        margin: 10px 0;
+                                    ">
+                                        <p>{st.session_state.htr_extracted_text}</p>
+                                    </div>
+                                    """,
+                                    unsafe_allow_html=True
+                                )
                     except Exception as e:
                         st.error(f"An error occurred during text extraction: {str(e)}")
 
