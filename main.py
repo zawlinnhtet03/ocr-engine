@@ -298,8 +298,8 @@ with tab3:
                     width: 100% !important;
                     max-width: 100% !important;
                     height: auto !important;
-                    min-height: 60vh !important; /* Minimum height to ensure visibility */
-                    max-height: 80vh !important; /* Cap height to avoid overflow */
+                    min-height: 100vh !important; /* Minimum height to ensure visibility */
+                    max-height: 180vh !important; /* Cap height to avoid overflow */
                     margin: 0 !important;
                     padding: 0 !important;
                     display: block !important;
@@ -308,8 +308,8 @@ with tab3:
                     width: 100% !important;
                     max-width: 100% !important;
                     height: auto !important;
-                    min-height: 60vh !important; /* Match minimum height */
-                    max-height: 80vh !important; /* Match maximum height */
+                    min-height: 100vh !important; /* Match minimum height */
+                    max-height: 180vh !important; /* Match maximum height */
                     object-fit: cover !important; /* Ensure the video fills the space */
                     border-radius: 5px; /* Match preview styling */
                 }
