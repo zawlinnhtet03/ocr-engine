@@ -310,63 +310,73 @@ with tab3:
     st.markdown("""
     Capture a document using your camera to extract text.  
     **Tip**: Use your device's back camera for better quality (switch cameras if needed).
-    """)
+    """, unsafe_allow_html=True)
 
-    # Camera input with improved layout
+    # Container for better mobile layout
     with st.container():
         st.subheader("Capture Image")
+        # Add padding and center the camera input
+        st.markdown("<div style='padding: 10px; text-align: center;'>", unsafe_allow_html=True)
         camera_image = st.camera_input(
             "Take a picture",
             key="scanner_camera",
             help="Point your camera at the document and capture. Use the back camera for best results."
         )
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    if camera_image is not None:
-        # Convert BytesIO to PIL Image
-        image = Image.open(camera_image)
-        
-        # Display the captured image in a clean layout
-        st.subheader("Preview")
-        st.image(image, caption="Captured Document", use_container_width=True)
+        # Preview and action buttons in a responsive layout
+        if camera_image is not None:
+            # Convert BytesIO to PIL Image
+            image = Image.open(camera_image)
 
-        # Process button for clarity
-        if st.button("Extract Text", key="extract_scanner_btn"):
-            with st.spinner("Extracting text..."):
-                # Extract text using Gemini
-                extracted_text = extract_text_with_camera(image)
-                
-                # Store in session state
-                st.session_state.extracted_text = extracted_text
-                st.session_state.extracted_equations = ""  # Gemini might not separate equations; adjust if needed
+            # Display preview in a centered column
+            col1, col2 = st.columns([3, 1])  # 3 parts for preview, 1 for spacer
+            with col1:
+                st.subheader("Preview")
+                st.image(image, caption="Captured Document", use_container_width=True)
 
-                # Display results
-                st.subheader("📄 Extracted Text")
-                if "Error" in extracted_text:
-                    st.error(extracted_text)
-                else:
-                    st.success("Text extraction completed!")
-                    st.markdown(
-                        f"""
-                        <div style="
-                            border: 1px solid #ccc;
-                            border-radius: 5px;
-                            padding: 15px;
-                            background-color: #f9f9f9;
-                            max-height: 400px;
-                            overflow-y: auto;
-                            font-family: monospace;
-                            white-space: pre-wrap;
-                            line-height: 1.5;
-                            font-size: 16px;
-                        ">{extracted_text}</div>
-                        """,
-                        unsafe_allow_html=True
-                    )
+            # Action button in a separate column for mobile tapability
+            with st.container():
+                st.markdown("<div style='padding: 15px; text-align: center;'>", unsafe_allow_html=True)
+                if st.button("Extract Text", key="extract_scanner_btn", help="Extract text from the captured image", use_container_width=True):
+                    with st.spinner("Extracting text..."):
+                        # Extract text using Gemini
+                        extracted_text = extract_text_with_camera(image)
+                        
+                        # Store in session state
+                        st.session_state.extracted_text = extracted_text
+                        st.session_state.extracted_equations = ""  # Gemini might not separate equations
 
-# Footer
-st.markdown("---")
-st.markdown("""
-<div style='text-align: center'>
-    <p>Powered by Advanced Computer Vision & OCR Technology</p>
-</div>
-""", unsafe_allow_html=True)
+                        # Display results
+                        st.subheader("📄 Extracted Text")
+                        if "Error" in extracted_text:
+                            st.error(extracted_text)
+                        else:
+                            st.success("Text extraction completed!")
+                            st.markdown(
+                                f"""
+                                <div style="
+                                    border: 1px solid #ccc;
+                                    border-radius: 5px;
+                                    padding: 15px;
+                                    background-color: #f9f9f9;
+                                    max-height: 300px; /* Reduced for mobile */
+                                    overflow-y: auto;
+                                    font-family: monospace;
+                                    white-space: pre-wrap;
+                                    line-height: 1.5;
+                                    font-size: 14px; /* Smaller font for mobile */
+                                    margin: 10px 0;
+                                ">{extracted_text}</div>
+                                """,
+                                unsafe_allow_html=True
+                            )
+                st.markdown("</div>", unsafe_allow_html=True)
+
+    # Footer
+    st.markdown("---")
+    st.markdown("""
+    <div style='text-align: center'>
+        <p>Powered by Advanced Computer Vision & OCR Technology</p>
+    </div>
+    """, unsafe_allow_html=True)
