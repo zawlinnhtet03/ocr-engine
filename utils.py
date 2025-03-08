@@ -27,11 +27,13 @@ def enhance_image_for_ocr(image):
 
         # Determine the number of channels
         if len(img_array.shape) == 2:  # Grayscale image (1 channel)
-            gray = img_array  # No need to convert, already grayscale
+            gray = img_array
         elif len(img_array.shape) == 3:  # RGB or RGBA image (3 or 4 channels)
             if img_array.shape[2] == 4:  # RGBA image
-                img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2RGB)  # Convert RGBA to RGB
-            gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)  # Convert RGB to grayscale
+                img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2RGB)
+            # Enhance contrast before converting to grayscale
+            img_array = cv2.convertScaleAbs(img_array, alpha=1.5, beta=0)  # Increase contrast
+            gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
         else:
             raise ValueError(f"Unsupported image format: {img_array.shape} channels")
 
@@ -43,10 +45,10 @@ def enhance_image_for_ocr(image):
         flat_gray = gray.flatten().reshape(1, -1)
         pca_result = pca.fit_transform(flat_gray)
         gray = pca.inverse_transform(pca_result).reshape(gray.shape)
-        gray = np.clip(gray, 0, 255).astype(np.uint8)  # Clip after PCA
+        gray = np.clip(gray, 0, 255).astype(np.uint8)
 
         # Enhance contrast using CLAHE
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))  # Increased clipLimit for better contrast
         enhanced = clahe.apply(gray)
 
         # Add bilateral filtering to reduce noise while preserving edges
@@ -56,8 +58,8 @@ def enhance_image_for_ocr(image):
         kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
         sharpened = cv2.filter2D(denoised, -1, kernel)
 
-        # Apply Otsu's thresholding
-        _, binary = cv2.threshold(sharpened, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        # Apply adaptive thresholding instead of Otsu's for better handling of varying contrast
+        binary = cv2.adaptiveThreshold(sharpened, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
 
         # Remove small noise
         kernel = np.ones((2, 2), np.uint8)
@@ -65,6 +67,7 @@ def enhance_image_for_ocr(image):
 
         # Convert back to PIL Image
         processed_image = Image.fromarray(cleaned)
+        print(f"Enhanced image shape: {np.array(processed_image).shape}, mode: {processed_image.mode}")  # Debug print
         return processed_image
 
     except Exception as e:
@@ -180,18 +183,20 @@ def extract_text_from_image(image):
     # Ensure the image data type is uint8
     gray = np.clip(gray, 0, 255).astype(np.uint8)
 
-    # Extract text using Tesseract OCR with layout analysis
-    text = pytesseract.image_to_string(gray, config='--psm 1')  # Use PSM 1 for automatic page segmentation
+    # Extract text using Tesseract OCR with optimized settings
+    text = pytesseract.image_to_string(gray, config='--psm 6 --oem 3')  # PSM 6 for single uniform block, OEM 3 for default Tesseract
+    print(f"Raw Tesseract output: '{text.strip()}'")  # Debug print
 
     # Use Gemini for equation detection if API is configured
     if initialize_ocr_engine():
         equations = detect_equations_with_gemini(image)
     else:
-        # Fallback to Tesseract for equation detection
+        # Fallback to Tesseract for equation detection with number whitelist
         equations = pytesseract.image_to_string(
             gray,
             config='--psm 6 -c tessedit_char_whitelist=0123456789+-*/()=xyz{}[]'
         )
+        print(f"Raw Tesseract equation output: '{equations.strip()}'")  # Debug print
 
     return {
         'text': text.strip(),
