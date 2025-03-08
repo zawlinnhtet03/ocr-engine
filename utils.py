@@ -161,14 +161,24 @@ def check_file_size(file_bytes):
 
 def extract_text_from_image(image):
     """Extract text from PIL Image object"""
-    # Convert to grayscale numpy array
+    # Convert to numpy array
     image_np = np.array(image)
-    gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
+
+    # Check the number of channels and convert to grayscale if needed
+    if len(image_np.shape) == 2:  # Grayscale image (1 channel)
+        gray = image_np
+    elif len(image_np.shape) == 3:  # RGB or RGBA image (3 or 4 channels)
+        gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
+    else:
+        raise ValueError(f"Unsupported image format: {image_np.shape} channels")
 
     # Apply noise reduction
     kernel = np.ones((1, 1), np.uint8)
     gray = cv2.dilate(gray, kernel, iterations=1)
     gray = cv2.erode(gray, kernel, iterations=1)
+
+    # Ensure the image data type is uint8
+    gray = np.clip(gray, 0, 255).astype(np.uint8)
 
     # Extract text using Tesseract OCR with layout analysis
     text = pytesseract.image_to_string(gray, config='--psm 1')  # Use PSM 1 for automatic page segmentation
