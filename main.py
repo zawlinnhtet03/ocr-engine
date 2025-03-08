@@ -291,49 +291,49 @@ with tab3:
     """, unsafe_allow_html=True)
 
     with st.container():
-        st.markdown("""
-            # <style>
-            #     .stCamera {
-            #         width: auto !important;
-            #         height: auto !important;
-            #         max-height: 80vh !important; /* Increased height to fill more of the screen */
-            #     }
-            #     video {
-            #         width: 100% !important;
-            #         height: auto !important;
-            #         max-height: 80vh !important; /* Match camera height */
-            #         object-fit: cover !important; /* Ensure the video fills the space */
-            #     }
-            #     .full-screen-content {
-            #         width: 100% !important;
-            #         max-width: 100% !important;
-            #         padding: 10px;
-            #         text-align: center;
-            #     }
-            #     .result-box {
-            #         width: 100% !important;
-            #         max-width: 100% !important;
-            #         padding: 15px;
-            #         background-color: #f9f9f9;
-            #         border: 1px solid #ccc;
-            #         border-radius: 5px;
-            #         overflow-y: auto;
-            #         font-family: monospace;
-            #         white-space: pre-wrap;
-            #         line-height: 1.5;
-            #         font-size: 14px;
-            #         margin: 10px 0;
-            #         max-height: 300px;
-            #     }
-            #     .camera-container {
-            #         width: 100% !important;
-            #         max-width: 100% !important;
-            #         padding: 20px; /* Increased padding for a larger feel */
-            #         margin: 0 auto;
-            #         text-align: center;
-            #     }
-            # </style>
-        """, unsafe_allow_html=True)
+        # st.markdown("""
+        #     <style>
+        #         .stCamera {
+        #             width: auto !important;
+        #             height: auto !important;
+        #             max-height: 80vh !important; /* Increased height to fill more of the screen */
+        #         }
+        #         video {
+        #             width: 100% !important;
+        #             height: auto !important;
+        #             max-height: 80vh !important; /* Match camera height */
+        #             object-fit: cover !important; /* Ensure the video fills the space */
+        #         }
+        #         .full-screen-content {
+        #             width: 100% !important;
+        #             max-width: 100% !important;
+        #             padding: 10px;
+        #             text-align: center;
+        #         }
+        #         .result-box {
+        #             width: 100% !important;
+        #             max-width: 100% !important;
+        #             padding: 15px;
+        #             background-color: #f9f9f9;
+        #             border: 1px solid #ccc;
+        #             border-radius: 5px;
+        #             overflow-y: auto;
+        #             font-family: monospace;
+        #             white-space: pre-wrap;
+        #             line-height: 1.5;
+        #             font-size: 14px;
+        #             margin: 10px 0;
+        #             max-height: 300px;
+        #         }
+        #         .camera-container {
+        #             width: 100% !important;
+        #             max-width: 100% !important;
+        #             padding: 20px; /* Increased padding for a larger feel */
+        #             margin: 0 auto;
+        #             text-align: center;
+        #         }
+        #     </style>
+        # """, unsafe_allow_html=True)
 
         if st.session_state.camera_active:
             st.subheader("Capture Image")
