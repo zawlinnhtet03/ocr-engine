@@ -15,7 +15,7 @@ from base64 import b64encode
 from sklearn.decomposition import PCA
 
 # Define maximum file size (5MB)
-MAX_FILE_SIZE = 5 * 1024 * 1024 
+MAX_FILE_SIZE = 200 * 1024 * 1024 
 
 def enhance_image_for_ocr(image):
     """

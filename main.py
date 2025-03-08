@@ -1,7 +1,5 @@
 import streamlit as st
 from PIL import Image
-import cv2
-import numpy as np
 import io
 from utils import (
     enhance_image_for_ocr,
@@ -18,10 +16,6 @@ st.set_page_config(
     page_title="Text Extraction & Document Scanner",
     page_icon="🔍",
 )
-
-# if st.button("Clear All", key="clear_all_btn"):
-#     reset_session_state()
-#     st.experimental_rerun()
 
 # Load custom CSS
 with open("assets/styles.css") as f:
@@ -41,20 +35,6 @@ def init_session_state():
     st.session_state.setdefault('captured_image', None)  # SCANNER captured image
     st.session_state.setdefault('scanner_extracted_text', "")  # SCANNER extracted text
     st.session_state.setdefault('scanner_extracted_equations', "")  # SCANNER extracted equations
-
-# def reset_session_state():
-#     st.session_state.image = None
-#     st.session_state.processed_image = None
-#     st.session_state.htr_extracted_text = ""
-#     st.session_state.htr_extracted_equations = ""
-#     st.session_state.file_type = None
-#     st.session_state.uploaded_image = None
-#     st.session_state.ocr_extracted_text = ""
-#     st.session_state.ocr_extracted_equations = ""
-#     st.session_state.camera_active = True
-#     st.session_state.captured_image = None
-#     st.session_state.scanner_extracted_text = ""
-#     st.session_state.scanner_extracted_equations = ""
 
 init_session_state()
 
@@ -77,15 +57,15 @@ with tab1:
     - 📎 Word documents (DOCX)
     """)
 
-    st.warning(f"""
-    📢 **File Size Limit: {MAX_FILE_SIZE/1024/1024:.1f}MB**
+    # st.warning(f"""
+    # 📢 **File Size Limit: {MAX_FILE_SIZE/1024/1024:.1f}MB**
 
-    Recommended file sizes for best performance:
-    - Images (PNG, JPG): 2-4MB
-    - PDF documents: 1-5MB
-    - Word documents (DOCX): 1-3MB
-    - Text files (TXT): < 1MB
-    """)
+    # Recommended file sizes for best performance:
+    # - Images (PNG, JPG): 2-4MB
+    # - PDF documents: 1-5MB
+    # - Word documents (DOCX): 1-3MB
+    # - Text files (TXT): < 1MB
+    # """)
 
     st.subheader("📤 File Upload")
     uploaded_file = st.file_uploader(
@@ -144,7 +124,7 @@ with tab1:
                 border-radius: 5px;
                 padding: 10px;
                 background-color: white;
-                height: 300px;
+                height: 500px;
                 overflow-y: auto;
                 font-family: monospace;
                 white-space: pre-wrap;
@@ -281,7 +261,7 @@ with tab2:
                         if ocr_engine is None:
                             st.error("OCR engine initialization failed. Please check your API key.")
                         else:
-                            extracted_text = perform_ocr_recognition(st.session_state.processed_image, ocr_engine)
+                            extracted_text = perform_ocr_recognition(st.session_state.image, ocr_engine)
                             st.session_state.htr_extracted_text = extracted_text
                             st.markdown("### Extracted Text")
                             if "Error" in extracted_text:
