@@ -366,9 +366,9 @@ with tab3:
                 st.session_state.scanner_extracted_text = ""
                 st.session_state.camera_active = True
 
-    st.markdown("---")
-    st.markdown("""
-    <div style='text-align: center'>
-        <p>Powered by Advanced Computer Vision & OCR Technology.</p>
-    </div>
-    """, unsafe_allow_html=True)
+st.markdown("---")
+st.markdown("""
+<div style='text-align: center'>
+    <p>Powered by Advanced Computer Vision & OCR Technology</p>
+</div>
+""", unsafe_allow_html=True)
