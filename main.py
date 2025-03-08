@@ -293,24 +293,23 @@ with tab3:
     with st.container():
         st.markdown("""
             <style>
-                /* Force camera input to fill the container and increase height */
+                /* Force camera input to fill the container */
                 .stCamera {
                     width: 100% !important;
                     max-width: 100% !important;
                     height: auto !important;
-                    min-height: 70vh !important; /* Increased to make it taller */
-                    max-height: 90vh !important; /* Increased to allow more vertical space */
+                    min-height: 60vh !important; /* Minimum height to ensure visibility */
+                    max-height: 80vh !important; /* Cap height to avoid overflow */
                     margin: 0 !important;
                     padding: 0 !important;
                     display: block !important;
-                    box-sizing: border-box !important;
                 }
                 video {
                     width: 100% !important;
                     max-width: 100% !important;
                     height: auto !important;
-                    min-height: 70vh !important; /* Match minimum height */
-                    max-height: 90vh !important; /* Match maximum height */
+                    min-height: 60vh !important; /* Match minimum height */
+                    max-height: 80vh !important; /* Match maximum height */
                     object-fit: cover !important; /* Ensure the video fills the space */
                     border-radius: 5px; /* Match preview styling */
                 }
@@ -323,14 +322,11 @@ with tab3:
                     text-align: center;
                     box-sizing: border-box !important;
                 }
-                /* Target Streamlit's internal camera wrapper (class may vary by version) */
-                .st-emotion-cache-1j7x7c6, /* Adjust this class based on inspection */
-                .st-ca {
+                .st-emotion-cache-1j7x7c6 { /* Target Streamlit's internal camera wrapper */
                     width: 100% !important;
                     max-width: 100% !important;
                     margin: 0 !important;
                     padding: 0 !important;
-                    min-height: 70vh !important;
                 }
                 .result-box {
                     width: 100% !important;
@@ -352,7 +348,7 @@ with tab3:
 
         if st.session_state.camera_active:
             st.subheader("Capture Image")
-            st.markdown("<div class='full-screen-content' style='min-height: 70vh;'>", unsafe_allow_html=True)  # Inline style for debugging
+            st.markdown("<div class='full-screen-content'>", unsafe_allow_html=True)
             camera_image = st.camera_input(
                 "Take a picture",
                 key="scanner_camera",
