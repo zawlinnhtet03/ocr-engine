@@ -124,6 +124,13 @@ with tab1:
         #     unsafe_allow_html=True
         # )
 
+        st.markdown(
+            f"""
+              {st.session_state.ocr_extracted_text}
+            """,
+            unsafe_allow_html=True
+        )
+
         if st.session_state.ocr_extracted_equations and st.session_state.ocr_extracted_equations != "No equations detected":
             st.markdown("### Detected Equations")
             st.latex(st.session_state.ocr_extracted_equations)
