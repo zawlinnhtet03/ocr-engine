@@ -227,6 +227,22 @@ def extract_text_from_pdf(pdf_bytes):
         if temp_path and os.path.exists(temp_path):
             os.unlink(temp_path)
 
+     # Use Gemini for equation detection if API is configured
+    if initialize_ocr_engine():
+        equations = detect_equations_with_gemini(image)
+    else:
+        # Fallback to Tesseract for equation detection with number whitelist
+        equations = pytesseract.image_to_string(
+            gray,
+            config='--psm 6 -c tessedit_char_whitelist=0123456789+-*/()=xyz{}[]'
+        )
+        print(f"Raw Tesseract equation output: '{equations.strip()}'")  # Debug print
+
+    return {
+        'text': text.strip(),
+        'equations': equations.strip()
+    }
+
 
 def extract_text_from_docx(docx_bytes):
     """Extract text from DOCX bytes"""
@@ -237,6 +253,22 @@ def extract_text_from_docx(docx_bytes):
         if paragraph.text.strip():  # Skip empty paragraphs
             text_blocks.append(paragraph.text.strip())
     return {'text': '\n\n'.join(text_blocks), 'equations': ''}
+
+     # Use Gemini for equation detection if API is configured
+    if initialize_ocr_engine():
+        equations = detect_equations_with_gemini(image)
+    else:
+        # Fallback to Tesseract for equation detection with number whitelist
+        equations = pytesseract.image_to_string(
+            gray,
+            config='--psm 6 -c tessedit_char_whitelist=0123456789+-*/()=xyz{}[]'
+        )
+        print(f"Raw Tesseract equation output: '{equations.strip()}'")  # Debug print
+
+    return {
+        'text': text.strip(),
+        'equations': equations.strip()
+    }
 
 # def extract_text_from_txt(txt_bytes):
 #     """Extract text from TXT bytes"""
