@@ -131,7 +131,7 @@ def detect_equations_with_gemini(image):
         img_byte_arr = img_byte_arr.getvalue()
 
         # Configure Gemini
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash')
 
         # Create the image part for the model
         image_parts = [
