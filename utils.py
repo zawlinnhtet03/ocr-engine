@@ -141,11 +141,24 @@ def detect_equations_with_gemini(image):
             }
         ]
 
+        # Prompt for equation detection
+         # prompt = """
+         # Please analyze this image and extract any mathematical equations or matrices you find.
+         # Return the matrices in a format like [[a b c], [d e f]] or the equations in correct format.
+         # If no equations or matrices are found, return 'No equations or matrices detected'.
+         # """
+
         prompt = """
         Please analyze this image and extract any mathematical equations or matrices you find.
         Return only the equations in understandable LaTeX format. Not show latex in results.
         If no equations are found, return 'No equations detected'.
         """
+
+         # prompt = """
+         # Please analyze this image and extract any mathematical equations or matrices you find.
+         # Return only the equations in understandable understandable format.
+         # If no equations are found, return 'No equations detected'.
+         # """
     
         # Generate response
         response = model.generate_content([prompt, image_parts[0]])
