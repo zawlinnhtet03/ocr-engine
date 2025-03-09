@@ -105,13 +105,7 @@ with tab1:
 
     if st.session_state.ocr_extracted_text or st.session_state.ocr_extracted_equations:
         st.subheader("📄 Extracted Content")
-
-        # Text Content with truncation
         st.markdown("### Text Content")
-        max_text_length = 200  # Limit to 200 characters
-        text_to_display = st.session_state.ocr_extracted_text[:max_text_length] + "..." if len(st.session_state.ocr_extracted_text) > max_text_length else st.session_state.ocr_extracted_text
-        if st.button("Show Full Text", key="show_full_text_btn"):
-            text_to_display = st.session_state.ocr_extracted_text
         st.markdown(
             f"""
             <div style="
@@ -119,25 +113,19 @@ with tab1:
                 border-radius: 5px;
                 padding: 10px;
                 background-color: white;
-                height: 200px;  /* Reduced height for better control */
+                height: 500px;
                 overflow-y: auto;
                 font-family: monospace;
                 white-space: pre-wrap;
                 line-height: 1.4;
-            ">{text_to_display or 'No text detected'}</div>
+            ">{st.session_state.ocr_extracted_text or 'No text detected'}</div>
             """,
             unsafe_allow_html=True
         )
 
-        # Detected Equations with truncation
         if st.session_state.ocr_extracted_equations and st.session_state.ocr_extracted_equations != "No equations detected":
             st.markdown("### Detected Equations")
-            max_equation_lines = 3  # Limit to 3 lines
-            equation_lines = st.session_state.ocr_extracted_equations.split('\n')
-            equation_to_display = '\n'.join(equation_lines[:max_equation_lines]) + "..." if len(equation_lines) > max_equation_lines else st.session_state.ocr_extracted_equations
-            if st.button("Show Full Equations", key="show_full_equations_btn"):
-                equation_to_display = st.session_state.ocr_extracted_equations
-            st.latex(equation_to_display)
+            st.latex(st.session_state.ocr_extracted_equations)
             st.markdown(
                 f"""
                 <div style="
@@ -145,12 +133,12 @@ with tab1:
                     border-radius: 5px;
                     padding: 10px;
                     background-color: white;
-                    max-height: 100px;  /* Reduced height */
+                    max-height: 200px;
                     overflow-y: auto;
                     font-family: monospace;
                     white-space: pre-wrap;
                     line-height: 1.4;
-                ">{equation_to_display}</div>
+                ">{st.session_state.ocr_extracted_equations}</div>
                 """,
                 unsafe_allow_html=True
             )
