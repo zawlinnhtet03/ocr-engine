@@ -272,6 +272,131 @@ with tab2:
                     except Exception as e:
                         st.error(f"An error occurred during text extraction: {str(e)}")
 
+# with tab3:
+#     st.header("📸 Document Scanner")
+#     st.markdown("""
+#     Capture a document using your camera to extract text.  
+#     **Tip**: Use your device's back camera for better quality (switch cameras if needed).
+#     """, unsafe_allow_html=True)
+
+#     # Container for better mobile layout
+#     with st.container():
+#         # Add inline CSS to control camera input and preview size
+#         st.markdown("""
+#             <style>
+#                 /* Force camera input to fill the container and match preview height */
+#                 .stCamera {
+#                     width: 100% !important;
+#                     max-width: 100% !important;
+#                     height: auto !important;
+#                     min-height: 70vh !important; /* Increased to match preview height */
+#                     max-height: 80vh !important; /* Cap height to avoid overflow */
+#                     margin: 0 !important;
+#                     padding: 0 !important;
+#                     display: block !important;
+#                     box-sizing: border-box !important;
+#                 }
+#                 video {
+#                     width: 100% !important;
+#                     max-width: 100% !important;
+#                     height: auto !important;
+#                     min-height: 70vh !important; /* Match minimum height */
+#                     max-height: 80vh !important; /* Match maximum height */
+#                     object-fit: contain !important; /* Preserve aspect ratio to avoid distortion */
+#                     border-radius: 5px; /* Match preview styling */
+#                 }
+#                 /* Ensure the full-screen content applies to both camera and preview */
+#                 .full-screen-content {
+#                     width: 100% !important;
+#                     max-width: 100% !important;
+#                     padding: 10px !important; /* Add padding for better appearance */
+#                     margin: 0 !important;
+#                     text-align: center;
+#                     box-sizing: border-box !important;
+#                     min-height: 70vh !important; /* Ensure the container height matches */
+#                 }
+#                 .st-emotion-cache-1j7x7c6 { /* Target Streamlit's internal camera wrapper */
+#                     width: 100% !important;
+#                     max-width: 100% !important;
+#                     margin: 0 !important;
+#                     padding: 0 !important;
+#                     min-height: 70vh !important; /* Ensure wrapper height matches */
+#                 }
+#                 .result-box {
+#                     width: 100% !important;
+#                     max-width: 100% !important;
+#                     padding: 15px;
+#                     background-color: #f9f9f9;
+#                     border: 1px solid #ccc;
+#                     border-radius: 5px;
+#                     overflow-y: auto;
+#                     font-family: monospace;
+#                     white-space: pre-wrap;
+#                     line-height: 1.5;
+#                     font-size: 14px;
+#                     margin: 10px 0;
+#                     max-height: 300px;
+#                 }
+#             </style>
+#         """, unsafe_allow_html=True)
+
+#         st.subheader("Capture Image")
+#         # Add padding and center the camera input using the full-screen-content class
+#         st.markdown("<div class='full-screen-content'>", unsafe_allow_html=True)
+#         camera_image = st.camera_input(
+#             "Take a picture",
+#             key="scanner_camera",
+#             help="Point your camera at the document and capture. Use the back camera for best results."
+#         )
+#         st.markdown("</div>", unsafe_allow_html=True)
+
+#         # Preview and action buttons in a responsive layout
+#         if camera_image is not None:
+#             # Convert BytesIO to PIL Image
+#             image = Image.open(camera_image)
+#             st.session_state.captured_image = image  # Store in session state for consistency
+
+#             # Display preview in a centered column
+#             col1, col2 = st.columns([3, 1])  # 3 parts for preview, 1 for spacer
+#             with col1:
+#                 st.subheader("Preview")
+#                 st.markdown("<div class='full-screen-content'>", unsafe_allow_html=True)
+#                 st.image(image, caption="Captured Document", use_container_width=True)
+#                 st.markdown("</div>", unsafe_allow_html=True)
+
+#             # Action buttons in a separate container for mobile tapability
+#             with st.container():
+#                 st.markdown("<div style='padding: 15px; text-align: center;'>", unsafe_allow_html=True)
+#                 if st.button("Extract Text", key="extract_scanner_btn", help="Extract text from the captured image", use_container_width=True):
+#                     with st.spinner("Extracting text..."):
+#                         # Extract text using Gemini
+#                         extracted_text = extract_text_with_camera(image)
+                        
+#                         # Store in session state
+#                         st.session_state.scanner_extracted_text = extracted_text
+#                         st.session_state.scanner_extracted_equations = ""  # Gemini might not separate equations
+
+#                         # Display results
+#                         st.subheader("📄 Extracted Text")
+#                         if "Error" in extracted_text:
+#                             st.error(extracted_text)
+#                         else:
+#                             st.success("Text extraction completed!")
+#                             st.markdown(
+#                                 f"""
+#                                 <div class="result-box">
+#                                     {extracted_text}
+#                                 </div>
+#                                 """,
+#                                 unsafe_allow_html=True
+#                             )
+#                 # Add a Retake Photo button to clear the captured image
+#                 if st.button("Retake Photo", key="retake_btn", help="Capture a new image", use_container_width=True):
+#                     st.session_state.captured_image = None
+#                     st.session_state.scanner_extracted_text = ""
+#                     st.session_state.scanner_extracted_equations = ""
+#                 st.markdown("</div>", unsafe_allow_html=True)
+
 with tab3:
     st.header("📸 Document Scanner")
     st.markdown("""
@@ -281,68 +406,9 @@ with tab3:
 
     # Container for better mobile layout
     with st.container():
-        # Add inline CSS to control camera input and preview size
-        st.markdown("""
-            <style>
-                /* Force camera input to fill the container and match preview height */
-                .stCamera {
-                    width: 100% !important;
-                    max-width: 100% !important;
-                    height: auto !important;
-                    min-height: 70vh !important; /* Increased to match preview height */
-                    max-height: 80vh !important; /* Cap height to avoid overflow */
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    display: block !important;
-                    box-sizing: border-box !important;
-                }
-                video {
-                    width: 100% !important;
-                    max-width: 100% !important;
-                    height: auto !important;
-                    min-height: 70vh !important; /* Match minimum height */
-                    max-height: 80vh !important; /* Match maximum height */
-                    object-fit: contain !important; /* Preserve aspect ratio to avoid distortion */
-                    border-radius: 5px; /* Match preview styling */
-                }
-                /* Ensure the full-screen content applies to both camera and preview */
-                .full-screen-content {
-                    width: 100% !important;
-                    max-width: 100% !important;
-                    padding: 10px !important; /* Add padding for better appearance */
-                    margin: 0 !important;
-                    text-align: center;
-                    box-sizing: border-box !important;
-                    min-height: 70vh !important; /* Ensure the container height matches */
-                }
-                .st-emotion-cache-1j7x7c6 { /* Target Streamlit's internal camera wrapper */
-                    width: 100% !important;
-                    max-width: 100% !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    min-height: 70vh !important; /* Ensure wrapper height matches */
-                }
-                .result-box {
-                    width: 100% !important;
-                    max-width: 100% !important;
-                    padding: 15px;
-                    background-color: #f9f9f9;
-                    border: 1px solid #ccc;
-                    border-radius: 5px;
-                    overflow-y: auto;
-                    font-family: monospace;
-                    white-space: pre-wrap;
-                    line-height: 1.5;
-                    font-size: 14px;
-                    margin: 10px 0;
-                    max-height: 300px;
-                }
-            </style>
-        """, unsafe_allow_html=True)
-
         st.subheader("Capture Image")
-        # Add padding and center the camera input using the full-screen-content class
-        st.markdown("<div class='full-screen-content'>", unsafe_allow_html=True)
+        # Add padding and center the camera input
+        st.markdown("<div style='padding: 10px; text-align: center;'>", unsafe_allow_html=True)
         camera_image = st.camera_input(
             "Take a picture",
             key="scanner_camera",
@@ -354,17 +420,14 @@ with tab3:
         if camera_image is not None:
             # Convert BytesIO to PIL Image
             image = Image.open(camera_image)
-            st.session_state.captured_image = image  # Store in session state for consistency
 
             # Display preview in a centered column
             col1, col2 = st.columns([3, 1])  # 3 parts for preview, 1 for spacer
             with col1:
                 st.subheader("Preview")
-                st.markdown("<div class='full-screen-content'>", unsafe_allow_html=True)
                 st.image(image, caption="Captured Document", use_container_width=True)
-                st.markdown("</div>", unsafe_allow_html=True)
 
-            # Action buttons in a separate container for mobile tapability
+            # Action button in a separate column for mobile tapability
             with st.container():
                 st.markdown("<div style='padding: 15px; text-align: center;'>", unsafe_allow_html=True)
                 if st.button("Extract Text", key="extract_scanner_btn", help="Extract text from the captured image", use_container_width=True):
@@ -373,8 +436,8 @@ with tab3:
                         extracted_text = extract_text_with_camera(image)
                         
                         # Store in session state
-                        st.session_state.scanner_extracted_text = extracted_text
-                        st.session_state.scanner_extracted_equations = ""  # Gemini might not separate equations
+                        st.session_state.extracted_text = extracted_text
+                        st.session_state.extracted_equations = ""  # Gemini might not separate equations
 
                         # Display results
                         st.subheader("📄 Extracted Text")
@@ -384,17 +447,22 @@ with tab3:
                             st.success("Text extraction completed!")
                             st.markdown(
                                 f"""
-                                <div class="result-box">
-                                    {extracted_text}
-                                </div>
+                                <div style="
+                                    border: 1px solid #ccc;
+                                    border-radius: 5px;
+                                    padding: 15px;
+                                    background-color: #f9f9f9;
+                                    max-height: 300px; /* Reduced for mobile */
+                                    overflow-y: auto;
+                                    font-family: monospace;
+                                    white-space: pre-wrap;
+                                    line-height: 1.5;
+                                    font-size: 14px; /* Smaller font for mobile */
+                                    margin: 10px 0;
+                                ">{extracted_text}</div>
                                 """,
                                 unsafe_allow_html=True
                             )
-                # Add a Retake Photo button to clear the captured image
-                if st.button("Retake Photo", key="retake_btn", help="Capture a new image", use_container_width=True):
-                    st.session_state.captured_image = None
-                    st.session_state.scanner_extracted_text = ""
-                    st.session_state.scanner_extracted_equations = ""
                 st.markdown("</div>", unsafe_allow_html=True)
 
     # Footer
