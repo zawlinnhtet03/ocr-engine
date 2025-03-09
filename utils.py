@@ -55,8 +55,8 @@ def enhance_image_for_ocr(image):
         denoised = cv2.bilateralFilter(enhanced, 9, 75, 75)
 
         # Sharpen the image
-        # kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-        # sharpened = cv2.filter2D(denoised, -1, kernel)
+        kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
+        sharpened = cv2.filter2D(denoised, -1, kernel)
 
         # Apply adaptive thresholding instead of Otsu's for better handling of varying contrast
         # binary = cv2.adaptiveThreshold(sharpened, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
