@@ -125,7 +125,7 @@ with tab1:
 
         if st.session_state.ocr_extracted_equations and st.session_state.ocr_extracted_equations != "No equations detected":
             st.markdown("### Detected Equations")
-            st.latex(st.session_state.ocr_extracted_equations)
+            # st.latex(st.session_state.ocr_extracted_equations)
             st.markdown(
                 f"""
                 <div style="
