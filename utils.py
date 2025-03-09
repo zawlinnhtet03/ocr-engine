@@ -203,7 +203,7 @@ def extract_text_from_image(image):
     }
 
 def extract_text_from_pdf(pdf_bytes):
-    """Extract text from PDF bytes"""
+    """Extract text and equations from PDF bytes"""
     temp_path = None
     try:
         # Create a temporary file
@@ -215,34 +215,62 @@ def extract_text_from_pdf(pdf_bytes):
         # Open and process the PDF
         with fitz.open(temp_path) as pdf_document:
             text_blocks = []
+            equation_blocks = []
+
             for page in pdf_document:
+                # Extract text blocks
                 blocks = page.get_text("blocks")
                 blocks.sort(key=lambda b: (b[1], b[0]))  # Sort by y, then x coordinate
                 text_blocks.extend(block[4] for block in blocks)
 
-        return {'text': '\n'.join(text_blocks), 'equations': ''}
+                # Convert the page to an image for equation detection
+                zoom = 2  # Increase resolution for better OCR
+                mat = fitz.Matrix(zoom, zoom)
+                pix = page.get_pixmap(matrix=mat)
+                img_bytes = pix.tobytes("png")  # Convert to PNG bytes
 
-         # Use Gemini for equation detection if API is configured
-        if initialize_ocr_engine():
-            equations = detect_equations_with_gemini(image)
-        else:
-            # Fallback to Tesseract for equation detection with number whitelist
-            equations = pytesseract.image_to_string(
-                gray,
-                config='--psm 6 -c tessedit_char_whitelist=0123456789+-*/()=xyz{}[]'
-            )
-            print(f"Raw Tesseract equation output: '{equations.strip()}'")  # Debug print
-    
-        return {
-            'text': text.strip(),
-            'equations': equations.strip()
-        }
+                # Convert to PIL Image
+                image = Image.open(io.BytesIO(img_bytes))
+
+                # Use Gemini for equation detection if API is configured
+                if initialize_ocr_engine():
+                    equations = detect_equations_with_gemini(image)
+                    equation_blocks.append(equations)
+                else:
+                    # Fallback to Tesseract for equation detection
+                    img_array = np.array(image)
+                    if len(img_array.shape) == 3:  # RGB image
+                        gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
+                    else:
+                        gray = img_array  # Already grayscale
+
+                    # Ensure the image data type is uint8
+                    gray = np.clip(gray, 0, 255).astype(np.uint8)
+
+                    # Extract equations using Tesseract
+                    equations = pytesseract.image_to_string(
+                        gray,
+                        config='--psm 6 -c tessedit_char_whitelist=0123456789+-*/()=xyz{}[]'
+                    )
+                    print(f"Raw Tesseract equation output for page {page.number}: '{equations.strip()}'")  # Debug print
+                    equation_blocks.append(equations.strip())
+
+            # Combine all extracted text and equations
+            extracted_text = '\n'.join(text_blocks).strip()
+            extracted_equations = '\n'.join([eq for eq in equation_blocks if eq and eq != "No equations detected"]).strip()
+
+            return {
+                'text': extracted_text,
+                'equations': extracted_equations if extracted_equations else "No equations detected"
+            }
+
+    except Exception as e:
+        return {'text': f"Error processing PDF: {str(e)}", 'equations': ''}
 
     finally:
         # Clean up the temporary file
         if temp_path and os.path.exists(temp_path):
             os.unlink(temp_path)
-
     
 
 
