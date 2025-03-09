@@ -187,7 +187,7 @@ def perform_ocr_recognition(image, engine):
         return f"OCR processing error: {error_msg}"
   
 def detect_equations_with_gemini(image):
-    """Use Gemini to detect equations in the image"""
+    """Detect equations in the image"""
     if not initialize_ocr_engine():
         return "API key not configured"
 
@@ -446,7 +446,7 @@ def extract_text_with_camera(image):
 
 def translate_text(text):
     """
-    Translate the given text to English using the Gemini API.
+    Translate the given text to English.
     Returns the translated text or an error message if translation fails.
     """
     try:
