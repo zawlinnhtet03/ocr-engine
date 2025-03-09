@@ -425,7 +425,7 @@ def process_uploaded_file(file_bytes, filename):
         return {"text": f"Error processing {filename}: {str(e)}", "equations": ""}
 
 def extract_text_with_camera(image):
-    """Extract text from an image using Gemini API."""
+    """Extract text from an image."""
     try:
         # Convert PIL Image to bytes
         buf = io.BytesIO()
@@ -443,3 +443,28 @@ def extract_text_with_camera(image):
         return response.text
     except Exception as e:
         return f"Error extracting text: {str(e)}"
+
+def translate_text(text):
+    """
+    Translate the given text to English using the Gemini API.
+    Returns the translated text or an error message if translation fails.
+    """
+    try:
+        # Initialize the Gemini model
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        
+        # Prompt for language detection and translation
+        prompt = f"""
+        The following text may be in any language. Detect the language and translate it into English.
+        If the text is already in English or no translation is needed, return the original text.
+        Text: "{text}"
+        """
+        
+        # Generate the translation
+        response = model.generate_content(prompt)
+        translated_text = response.text.strip()
+        
+        return translated_text if translated_text else "No translation available"
+    
+    except Exception as e:
+        return f"Error translating text: {str(e)}"
