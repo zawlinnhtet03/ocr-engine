@@ -82,7 +82,7 @@ def initialize_ocr_engine():
         # Initialize backend OCR engine
         api_key = st.secrets["api_key"]
         genai.configure(api_key=api_key)
-        engine = genai.GenerativeModel('gemini-1.5-flash')
+        engine = genai.GenerativeModel('gemini-2.0-flash')
         return engine
     except Exception as e:
         st.error(f"Error initializing OCR engine: {str(e)}")
