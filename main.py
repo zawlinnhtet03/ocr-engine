@@ -9,6 +9,7 @@ from utils import (
     process_uploaded_file,
     extract_relevant_sentences,
     extract_text_with_camera,
+    translate_text,
     MAX_FILE_SIZE
 )
 
@@ -439,6 +440,9 @@ with tab3:
                         st.session_state.extracted_text = extracted_text
                         st.session_state.extracted_equations = ""  # Gemini might not separate equations
 
+                        # Translate the extracted text to English
+                        translated_text = translate_text(extracted_text)
+
                         # Display results
                         st.subheader("📄 Extracted Text")
                         if "Error" in extracted_text:
@@ -452,14 +456,39 @@ with tab3:
                                     border-radius: 5px;
                                     padding: 15px;
                                     background-color: #f9f9f9;
-                                    max-height: 300px; /* Reduced for mobile */
+                                    max-height: 300px;
                                     overflow-y: auto;
                                     font-family: monospace;
                                     white-space: pre-wrap;
                                     line-height: 1.5;
-                                    font-size: 14px; /* Smaller font for mobile */
+                                    font-size: 14px;
                                     margin: 10px 0;
                                 ">{extracted_text}</div>
+                                """,
+                                unsafe_allow_html=True
+                            )
+
+                        # Display translated text
+                        st.subheader("🌐 Translated Text (English)")
+                        if "Error" in translated_text:
+                            st.error(translated_text)
+                        else:
+                            st.success("Translation completed!")
+                            st.markdown(
+                                f"""
+                                <div style="
+                                    border: 1px solid #ccc;
+                                    border-radius: 5px;
+                                    padding: 15px;
+                                    background-color: #f9f9f9;
+                                    max-height: 300px;
+                                    overflow-y: auto;
+                                    font-family: monospace;
+                                    white-space: pre-wrap;
+                                    line-height: 1.5;
+                                    font-size: 14px;
+                                    margin: 10px 0;
+                                ">{translated_text}</div>
                                 """,
                                 unsafe_allow_html=True
                             )
