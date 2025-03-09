@@ -78,7 +78,7 @@ MAX_FILE_SIZE = 200 * 1024 * 1024
 
 def enhance_image_for_ocr(image):
     """
-    Enhanced preprocessing pipeline for text recognition with focus on clarity
+    Enhanced preprocessing pipeline for text recognition with focus on clarity for handwritten text
     """
     try:
         # Convert PIL Image to numpy array
@@ -90,8 +90,8 @@ def enhance_image_for_ocr(image):
         elif len(img_array.shape) == 3:  # RGB or RGBA image (3 or 4 channels)
             if img_array.shape[2] == 4:  # RGBA image
                 img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2RGB)
-            # Enhance contrast before converting to grayscale
-            img_array = cv2.convertScaleAbs(img_array, alpha=1.2, beta=0)  # Reduced contrast boost
+            # Mild contrast enhancement before converting to grayscale
+            img_array = cv2.convertScaleAbs(img_array, alpha=1.1, beta=0)  # Very mild contrast boost
             gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
         else:
             raise ValueError(f"Unsupported image format: {img_array.shape} channels")
@@ -99,25 +99,18 @@ def enhance_image_for_ocr(image):
         # Ensure the image data type is uint8
         gray = np.clip(gray, 0, 255).astype(np.uint8)
 
-        # Enhance contrast using CLAHE with softer parameters
-        clahe = cv2.createCLAHE(clipLimit=1.5, tileGridSize=(8, 8))  # Reduced clipLimit for less aggressive contrast
+        # Apply mild contrast enhancement with CLAHE
+        clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(8, 8))  # Very mild contrast
         enhanced = clahe.apply(gray)
 
-        # Add bilateral filtering to reduce noise while preserving edges
-        denoised = cv2.bilateralFilter(enhanced, 9, 50, 50)  # Reduced sigma values for softer filtering
+        # Apply Gaussian blur to smooth noise while preserving edges
+        smoothed = cv2.GaussianBlur(enhanced, (5, 5), 1.0)  # Mild blur to reduce noise
 
-        # Use Otsu's thresholding instead of adaptive thresholding
-        _, binary = cv2.threshold(denoised, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        # Add bilateral filtering to further reduce noise while preserving edges
+        denoised = cv2.bilateralFilter(smoothed, 9, 25, 25)  # Reduced sigma values for lighter filtering
 
-        # Apply light dilation to reconnect broken strokes
-        kernel = np.ones((2, 2), np.uint8)
-        dilated = cv2.dilate(binary, kernel, iterations=1)
-
-        # Remove small noise with morphological closing
-        cleaned = cv2.morphologyEx(dilated, cv2.MORPH_CLOSE, kernel)
-
-        # Convert back to PIL Image
-        processed_image = Image.fromarray(cleaned)
+        # Convert back to PIL Image (grayscale, no thresholding)
+        processed_image = Image.fromarray(denoised)
         print(f"Enhanced image shape: {np.array(processed_image).shape}, mode: {processed_image.mode}")  # Debug print
         return processed_image
 
