@@ -150,7 +150,7 @@ def detect_equations_with_gemini(image):
 
         prompt = """
         Please analyze this image and extract any mathematical equations or matrices you find.
-        Return only the equations in understandable format.
+        Return only the equations in understandable latex format.
         If no equations are found, return 'No equations detected'.
         """
 
