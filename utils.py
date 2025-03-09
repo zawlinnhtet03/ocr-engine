@@ -78,20 +78,21 @@ MAX_FILE_SIZE = 200 * 1024 * 1024
 
 def enhance_image_for_ocr(image):
     """
-    Enhanced preprocessing pipeline for text recognition with focus on clarity for handwritten text
+    Enhanced preprocessing pipeline for text recognition, optimized for handwritten text.
+    Converts to grayscale, removes noise, and produces a clear binary image for OCR.
     """
     try:
         # Convert PIL Image to numpy array
         img_array = np.array(image)
 
-        # Determine the number of channels
-        if len(img_array.shape) == 2:  # Grayscale image (1 channel)
+        # Convert to grayscale with contrast enhancement
+        if len(img_array.shape) == 2:  # Already grayscale
             gray = img_array
-        elif len(img_array.shape) == 3:  # RGB or RGBA image (3 or 4 channels)
+        elif len(img_array.shape) == 3:  # RGB or RGBA image
             if img_array.shape[2] == 4:  # RGBA image
                 img_array = cv2.cvtColor(img_array, cv2.COLOR_RGBA2RGB)
-            # Mild contrast enhancement before converting to grayscale
-            img_array = cv2.convertScaleAbs(img_array, alpha=1.1, beta=0)  # Very mild contrast boost
+            # Enhance contrast before grayscale conversion
+            img_array = cv2.convertScaleAbs(img_array, alpha=1.8, beta=10)  # Adjusted for handwritten text
             gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
         else:
             raise ValueError(f"Unsupported image format: {img_array.shape} channels")
@@ -99,19 +100,41 @@ def enhance_image_for_ocr(image):
         # Ensure the image data type is uint8
         gray = np.clip(gray, 0, 255).astype(np.uint8)
 
-        # Apply mild contrast enhancement with CLAHE
-        clahe = cv2.createCLAHE(clipLimit=1.0, tileGridSize=(8, 8))  # Very mild contrast
-        enhanced = clahe.apply(gray)
+        # Apply Gaussian blur to reduce noise while preserving text edges
+        blurred = cv2.GaussianBlur(gray, (5, 5), 1)
 
-        # Apply Gaussian blur to smooth noise while preserving edges
-        smoothed = cv2.GaussianBlur(enhanced, (5, 5), 1.0)  # Mild blur to reduce noise
+        # Enhance contrast using CLAHE
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        enhanced = clahe.apply(blurred)
 
-        # Add bilateral filtering to further reduce noise while preserving edges
-        denoised = cv2.bilateralFilter(smoothed, 9, 25, 25)  # Reduced sigma values for lighter filtering
+        # Apply adaptive thresholding to binarize the image
+        binary = cv2.adaptiveThreshold(
+            enhanced, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 15, 3
+        )
 
-        # Convert back to PIL Image (grayscale, no thresholding)
-        processed_image = Image.fromarray(denoised)
+        # Invert the image if text is darker than background (common for handwritten notes)
+        if np.mean(enhanced) > 127:  # Light background
+            binary = cv2.bitwise_not(binary)
+
+        # Remove small noise using morphological opening
+        kernel = np.ones((3, 3), np.uint8)
+        cleaned = cv2.morphologyEx(binary, cv2.MORPH_OPEN, kernel, iterations=1)
+
+        # Optional slight dilation to connect text strokes if needed
+        dilated = cv2.dilate(cleaned, np.ones((2, 2), np.uint8), iterations=1)
+
+        # Convert back to PIL Image
+        processed_image = Image.fromarray(dilated)
         print(f"Enhanced image shape: {np.array(processed_image).shape}, mode: {processed_image.mode}")  # Debug print
+
+        # Optional: Display intermediate steps for debugging (uncomment to use)
+        # st.image(Image.fromarray(gray), caption="Grayscale")
+        # st.image(Image.fromarray(blurred), caption="Blurred")
+        # st.image(Image.fromarray(enhanced), caption="Enhanced")
+        # st.image(Image.fromarray(binary), caption="Binary")
+        # st.image(Image.fromarray(cleaned), caption="Cleaned")
+        # st.image(Image.fromarray(dilated), caption="Dilated")
+
         return processed_image
 
     except Exception as e:
