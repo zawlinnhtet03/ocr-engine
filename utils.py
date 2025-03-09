@@ -454,14 +454,10 @@ def translate_text(text):
         model = genai.GenerativeModel('gemini-2.0-flash')
         
         # Prompt for language detection and translation
-        # prompt = f"""
-        # The following text may be in any language. Detect the language and translate it into English.
-        # If the text is already in English or no translation is needed, return the original text.
-        # Text: "{text}"
-        # """
-
         prompt = f"""
-        Translate the text if the following text is not english but if it is already english, no need.
+        The following text may be in any language. Detect the language and translate it into English.
+        If the text is already in English or no translation is needed, return the original text.
+        Text: "{text}"
         """
         
         # Generate the translation
