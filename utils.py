@@ -41,11 +41,11 @@ def enhance_image_for_ocr(image):
         gray = np.clip(gray, 0, 255).astype(np.uint8)
 
         # Apply PCA for dimensionality reduction (works with 2D grayscale)
-        pca = PCA(n_components=0.95)  # Retain 95% of variance
-        flat_gray = gray.flatten().reshape(1, -1)
-        pca_result = pca.fit_transform(flat_gray)
-        gray = pca.inverse_transform(pca_result).reshape(gray.shape)
-        gray = np.clip(gray, 0, 255).astype(np.uint8)
+        # pca = PCA(n_components=0.95)  # Retain 95% of variance
+        # flat_gray = gray.flatten().reshape(1, -1)
+        # pca_result = pca.fit_transform(flat_gray)
+        # gray = pca.inverse_transform(pca_result).reshape(gray.shape)
+        # gray = np.clip(gray, 0, 255).astype(np.uint8)
 
         # Enhance contrast using CLAHE
         clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))  # Increased clipLimit for better contrast
