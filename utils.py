@@ -210,7 +210,7 @@ def detect_equations_with_gemini(image):
 
         prompt = """
         Please analyze this image or document and extract all mathematical equations and matrices you find.
-        Return ONLY the equations and matrices in correct LaTeX format, don't show extra words. 
+        Return ONLY the equations and matrices in correct LaTeX format, don't include the word latex. 
         If no equations are found, return 'No equations detected'.
         """
 
